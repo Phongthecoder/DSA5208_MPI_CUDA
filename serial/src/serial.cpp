@@ -35,12 +35,16 @@ UInt parse_unsigned(std::string_view value, std::string_view flag) {
 
 Options parse_options(int argc, char** argv) {
     Options options;
-    for (int i = 1; i < argc; i += 2) {
+    for (int i = 1; i < argc; ++i) {
         const std::string_view flag = argv[i];
+        if (flag == "--profile-gaussian") {
+            options.filter.profile_gaussian = true;
+            continue;
+        }
         if (i + 1 == argc) {
             throw std::invalid_argument("missing value for " + std::string(flag));
         }
-        const std::string_view value = argv[i + 1];
+        const std::string_view value = argv[++i];
         if (flag == "--model") {
             if (value == "linear") {
                 options.sensor = tracking::Sensor::linear;
@@ -118,7 +122,7 @@ int main(int argc, char** argv) {
     if (argc == 2 && std::string_view(argv[1]) == "--help") {
         std::cout << "Usage: serial_pf [--model linear|range-bearing] [--particles N] [--steps T]\n"
                      "                 [--data-seed SEED] [--filter-seed SEED]\n"
-                     "                 [--resample RATIO|always] [--trajectory FILE]\n";
+                     "                 [--resample RATIO|always] [--trajectory FILE] [--profile-gaussian]\n";
         return 0;
     }
     try {
@@ -149,9 +153,13 @@ int main(int argc, char** argv) {
         const double workflow_ms = std::chrono::duration<double, std::milli>(Clock::now() - started).count();
         const double simulate_ms = std::chrono::duration<double, std::milli>(simulated - started).count();
         const auto& times = fit.times;
+        const char* profile_columns = options.filter.profile_gaussian
+                                         ? ",gaussian_prior_ms,gaussian_motion_ms"
+                                         : "";
         std::cout << "model,particles,steps,data_seed,filter_seed,resampling,position_rmse_m,velocity_rmse_mps,"
                      "log_likelihood,resampled_steps,particle_buffer_bytes,simulate_ms,initialize_ms,"
-                     "propagate_weight_ms,normalize_ess_ms,estimate_ms,resample_ms,filter_ms,workflow_ms\n"
+                     "propagate_weight_ms,normalize_ess_ms,estimate_ms,resample_ms,filter_ms,workflow_ms"
+                  << profile_columns << '\n'
                   << std::setprecision(12)
                   << (options.sensor == tracking::Sensor::linear ? "linear" : "range-bearing") << ','
                   << options.filter.particles << ',' << options.steps << ',' << options.data_seed << ','
@@ -165,7 +173,11 @@ int main(int argc, char** argv) {
                   << fit.resampled_steps << ',' << fit.particle_buffer_bytes << ',' << simulate_ms << ','
                   << times.initialize_ms << ',' << times.propagate_weight_ms << ',' << times.normalize_ess_ms
                   << ',' << times.estimate_ms << ',' << times.resample_ms << ',' << times.filter_ms << ','
-                  << workflow_ms << '\n';
+                  << workflow_ms;
+        if (options.filter.profile_gaussian) {
+            std::cout << ',' << times.gaussian_prior_ms << ',' << times.gaussian_motion_ms;
+        }
+        std::cout << '\n';
         return 0;
     } catch (const std::exception& error) {
         std::cerr << "serial_pf: " << error.what() << '\n';

@@ -34,6 +34,7 @@ struct FilterOptions {
     double ess_ratio = 0.5;
     bool always_resample = false;
     bool estimate_covariance = false;
+    bool profile_gaussian = false;
 };
 
 struct Estimate {
@@ -51,6 +52,8 @@ struct PhaseTimes {
     double estimate_ms = 0.0;
     double resample_ms = 0.0;
     double filter_ms = 0.0;
+    double gaussian_prior_ms = 0.0;
+    double gaussian_motion_ms = 0.0;
 };
 
 struct FilterResult {

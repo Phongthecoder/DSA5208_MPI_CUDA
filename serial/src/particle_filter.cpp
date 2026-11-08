@@ -21,18 +21,26 @@ class StateSampler {
 public:
     explicit StateSampler(std::uint64_t seed) : engine_(seed) {}
 
-    State prior() {
+    State draw_normals() {
+        return {normal_(engine_), normal_(engine_), normal_(engine_), normal_(engine_)};
+    }
+
+    State prior() { return prior(draw_normals()); }
+
+    static State prior(const State& noise) {
         State state{};
         for (std::size_t i = 0; i < state.size(); ++i) {
-            state[i] = prior_mean[i] + prior_sd[i] * normal_(engine_);
+            state[i] = prior_mean[i] + prior_sd[i] * noise[i];
         }
         return state;
     }
 
-    void propagate(State& state) {
+    void propagate(State& state) { propagate(state, draw_normals()); }
+
+    void propagate(State& state, const State& noise) const {
         for (std::size_t axis = 0; axis < 2; ++axis) {
-            const double z_position = normal_(engine_);
-            const double z_velocity = normal_(engine_);
+            const double z_position = noise[2 * axis];
+            const double z_velocity = noise[2 * axis + 1];
             state[axis] += dt * state[axis + 2] + position_noise_sd_ * z_position;
             state[axis + 2] += shared_noise_scale_ * z_position + velocity_noise_sd_ * z_velocity;
         }
@@ -136,11 +144,35 @@ FilterResult particle_filter(Sensor sensor, const std::vector<Observation>& obse
     std::vector<std::size_t> ancestors(n);
     StateSampler motion(options.seed ^ 0xd1b54a32d192ed03ULL);
     std::mt19937_64 resampling_engine(options.seed ^ 0x94d049bb133111ebULL);
-    for (State& state : particles) {
-        state = motion.prior();
-    }
+    constexpr std::size_t batch_particles = 1024;
+    std::vector<State> noise_batch(options.profile_gaussian ? std::min(n, batch_particles) : 0);
+    const auto for_each_particle = [&](auto apply_noise) {
+        if (noise_batch.empty()) {
+            for (std::size_t i = 0; i < n; ++i) {
+                apply_noise(i, motion.draw_normals());
+            }
+            return 0.0;
+        }
+
+        double gaussian_ms = 0.0;
+        for (std::size_t offset = 0; offset < n;) {
+            const auto batch_size = std::min(noise_batch.size(), n - offset);
+            // Time the draws in batches to keep clock calls out of the per-particle loop.
+            const auto batch_started = Clock::now();
+            std::generate_n(noise_batch.begin(), batch_size, [&] { return motion.draw_normals(); });
+            gaussian_ms += milliseconds(batch_started, Clock::now());
+            for (std::size_t j = 0; j < batch_size; ++j) {
+                apply_noise(offset + j, noise_batch[j]);
+            }
+            offset += batch_size;
+        }
+        return gaussian_ms;
+    };
 
     FilterResult result;
+    result.times.gaussian_prior_ms = for_each_particle([&](std::size_t i, const State& noise) {
+        particles[i] = StateSampler::prior(noise);
+    });
     result.estimates.resize(observations.size());
     if (options.estimate_covariance) {
         result.covariances.resize(observations.size());
@@ -161,8 +193,8 @@ FilterResult particle_filter(Sensor sensor, const std::vector<Observation>& obse
             throw std::invalid_argument("observations must be finite");
         }
         double max_log_weight = -std::numeric_limits<double>::infinity();
-        for (std::size_t i = 0; i < n; ++i) {
-            motion.propagate(particles[i]);
+        result.times.gaussian_motion_ms += for_each_particle([&](std::size_t i, const State& noise) {
+            motion.propagate(particles[i], noise);
             const Observation predicted = expected_observation(sensor, particles[i]);
             const double error0 = (observation[0] - predicted[0]) * inverse_sd0;
             double residual1 = observation[1] - predicted[1];
@@ -172,7 +204,7 @@ FilterResult particle_filter(Sensor sensor, const std::vector<Observation>& obse
             const double error1 = residual1 * inverse_sd1;
             log_weights[i] += log_density_constant - 0.5 * (error0 * error0 + error1 * error1);
             max_log_weight = std::max(max_log_weight, log_weights[i]);
-        }
+        });
         const auto weighted = Clock::now();
         result.times.propagate_weight_ms += milliseconds(phase_start, weighted);
 

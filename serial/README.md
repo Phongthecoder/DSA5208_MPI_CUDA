@@ -130,6 +130,49 @@ qsub scripts/serial_vanda.pbs
 
 From the checkout root, use `qsub serial/scripts/serial_vanda.pbs`.
 
+## Extended benchmark on Vanda
+
+Submit the extended sweep from `serial/`.
+
+```sh
+qsub scripts/serial_extended_vanda.pbs
+```
+
+The job requests one CPU core, 2 GB of memory, and a 40-minute wall time.
+It saves its validation log and CSV files in `results/<job_id>/`. The sweep
+uses seven particle counts from 2^10 to 2^22 at 256 steps, with data seed 42,
+filter seed 1729, and an ESS threshold of 0.5. Each case has an eight-step
+warm-up, three full runs for filter time and memory, and one full run for
+Gaussian sampling time. GNU `/usr/bin/time -f %M` measures the filter process's
+peak resident set size. The summary reports the median filter time and the
+largest of the three peak RSS measurements. [GNU Time memory metrics](https://www.gnu.org/software/time/manual/html_node/Memory-Resources.html).
+
+`--profile-gaussian` appends `gaussian_prior_ms` and `gaussian_motion_ms` to the
+command-line CSV. The timers cover draws for particle initialization and
+propagation in batches of up to 1,024 particles, including writes to the
+temporary buffer. The reported share uses the profiled run's own filter
+time. The benchmark checks that the filter outputs match across both modes
+for each fixed seed and particle count.
+
+Vanda job `1532884.stdct-mgmt-02` completed validation and all seven cases.
+At 2^22 particles, the median filter time was 147.981 s and the peak RSS was
+355.59 MiB. Gaussian sampling took 81.769 s in the separate profiling run,
+61.2% of that run's filter time. [Summary CSV](benchmarks/vanda/extended/extended_summary.csv)
+· [21 runtime and memory records](benchmarks/vanda/extended/extended_runtime_runs.csv)
+· [7 Gaussian profiles](benchmarks/vanda/extended/extended_gaussian_profiles.csv)
+· [Result figure](benchmarks/vanda/extended/extended_vanda.png)
+· [Compute environment](benchmarks/vanda/extended/environment.txt)
+· [PBS allocation](benchmarks/vanda/extended/pbs_job.txt)
+· [Validation log](benchmarks/vanda/extended/serial_validation.txt)
+· [Source checksums](benchmarks/vanda/extended/source_sha256.txt).
+
+To regenerate the figure from the archived data, use Python with Matplotlib.
+
+```sh
+mkdir -p results
+python3 scripts/plot_extended_serial.py benchmarks/vanda/extended/extended_summary.csv results/extended_vanda.png
+```
+
 ## AI use and references
 
 OpenAI Codex assisted with the serial implementation, validation and benchmark
