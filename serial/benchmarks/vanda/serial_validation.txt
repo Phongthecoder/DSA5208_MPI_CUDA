@@ -1,0 +1,19 @@
+c++  -O3 -Wall -Wextra -Wpedantic -std=c++17 -Isrc  tests/validate_serial.cpp build/1532604.stdct-mgmt-02/particle_filter.o  -o build/1532604.stdct-mgmt-02/validate_serial
+build/1532604.stdct-mgmt-02/validate_serial
+PASS systematic ancestry, angle wrapping, observation reproducibility, ESS and tiny likelihoods
+
+Linear Gaussian (T=80, 6 seeds, ESS ratio 0.5)
+particles,position_mean_rmse_m,velocity_mean_rmse_mps,standardized_covariance_rmse,absolute_log_likelihood_error_per_step
+512,3.419658,0.409188,0.250610,0.077110
+4096,1.116599,0.174057,0.079728,0.009486
+65536,0.285613,0.048278,0.025071,0.001829
+PASS Kalman comparison
+
+Range-bearing (N=8192, T=200, 6 seeds)
+policy,position_rmse_m,velocity_rmse_mps,mean_resampled_steps
+raw_measurements,22.111531,,
+ess_0.5,7.754915,0.983719,60.333333
+always,7.760673,0.983900,200.000000
+PASS nonlinear tracking and resampling policies
+
+All serial validation checks passed.

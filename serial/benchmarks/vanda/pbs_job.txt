@@ -1,0 +1,20 @@
+Job Id: 1532604.stdct-mgmt-02
+    Job_Name = dsa5208_serial_pf
+    resources_used.cput = 00:00:41
+    resources_used.mem = 60168kb
+    resources_used.ncpus = 1
+    resources_used.walltime = 00:00:42
+    job_state = F
+    queue = cpu_serial
+    ctime = Sun Nov  8 14:38:30 2026
+    exec_host = CN-161/22
+    exec_vnode = (CN-161[1]:ncpus=1:mem=2gb)
+    qtime = Sun Nov  8 14:38:30 2026
+    Resource_List.ncpus = 1
+    Resource_List.select = 1:ncpus=1:mem=2gb
+    Resource_List.walltime = 00:15:00
+    stime = Sun Nov  8 14:38:33 2026
+    obittime = Sun Nov  8 14:39:16 2026
+    comment = Job run at Sun Nov 08 at 14:38 on (CN-161[1]:ncpus=1:mem=2gb) and
+    etime = Sun Nov  8 14:38:30 2026
+    Exit_status = 0

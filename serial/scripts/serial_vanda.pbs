@@ -1,0 +1,33 @@
+#!/bin/bash
+#PBS -N dsa5208_serial_pf
+#PBS -q auto_free
+#PBS -l select=1:ncpus=1:mem=2gb
+#PBS -l walltime=00:15:00
+#PBS -j oe
+
+set -euo pipefail
+cd "${PBS_O_WORKDIR:?Submit from the checkout root or serial/}"
+if [[ -f serial/scripts/serial_vanda.pbs ]]; then
+    cd serial
+fi
+if [[ ! -f scripts/serial_vanda.pbs ]]; then
+    printf '%s\n' 'Submit this job from the checkout root or serial/.' >&2
+    exit 1
+fi
+
+compiler="${CXX:-c++}"
+build_dir="build/${PBS_JOBID}"
+output_dir="results/${PBS_JOBID}"
+mkdir -p "$output_dir"
+{
+    date -u
+    printf 'PBS job %s\n' "$PBS_JOBID"
+    uname -a
+    lscpu
+    "$compiler" --version
+    python3 --version
+} > "$output_dir/environment.txt"
+
+make BUILD_DIR="$build_dir" CXX="$compiler" all
+make BUILD_DIR="$build_dir" CXX="$compiler" check | tee "$output_dir/serial_validation.txt"
+python3 scripts/benchmark_serial.py --binary "$build_dir/serial_pf" --output-dir "$output_dir"
