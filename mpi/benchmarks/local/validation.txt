@@ -1,0 +1,16 @@
+set -e; for ranks in 1 3 8; do mpiexec  -n $ranks build/verified/validate_mpi; done
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=3.751032 m, velocity RMSE=0.485413 m/s, standardized covariance RMSE=0.195581, log-likelihood error/step=0.067155
+Kalman comparison N=65536 position RMSE=0.225945 m, velocity RMSE=0.045050 m/s, standardized covariance RMSE=0.025804, log-likelihood error/step=0.001053
+Range-bearing position RMSE over six tracks: MPI=7.966608 m, serial=8.035089 m, observations=18.107883 m
+All MPI checks passed on 1 ranks.
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=3.751032 m, velocity RMSE=0.485413 m/s, standardized covariance RMSE=0.195581, log-likelihood error/step=0.067155
+Kalman comparison N=65536 position RMSE=0.225945 m, velocity RMSE=0.045050 m/s, standardized covariance RMSE=0.025804, log-likelihood error/step=0.001053
+Range-bearing position RMSE over six tracks: MPI=7.966608 m, serial=8.035089 m, observations=18.107883 m
+All MPI checks passed on 3 ranks.
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=3.751032 m, velocity RMSE=0.485413 m/s, standardized covariance RMSE=0.195581, log-likelihood error/step=0.067155
+Kalman comparison N=65536 position RMSE=0.225945 m, velocity RMSE=0.045050 m/s, standardized covariance RMSE=0.025804, log-likelihood error/step=0.001053
+Range-bearing position RMSE over six tracks: MPI=7.966608 m, serial=8.035089 m, observations=18.107883 m
+All MPI checks passed on 8 ranks.

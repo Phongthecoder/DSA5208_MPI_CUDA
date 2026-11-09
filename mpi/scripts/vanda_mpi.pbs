@@ -1,0 +1,57 @@
+#!/bin/bash
+#PBS -N dsa5208_cpu_mpi
+#PBS -q auto_free
+#PBS -l select=1:ncpus=1:mpiprocs=1:ompthreads=1:mem=8gb
+#PBS -l walltime=00:30:00
+#PBS -j oe
+
+set -eo pipefail
+cd "${PBS_O_WORKDIR:?Submit using scripts/submit_vanda.sh}"
+if [[ -f mpi/Makefile ]]; then
+    cd mpi
+fi
+
+if ! type module >/dev/null 2>&1; then
+    source /etc/profile.d/modules.sh
+fi
+module load openmpi/gcc/64/4.1.8
+set -u
+export LD_LIBRARY_PATH="/opt/pbs/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export OMP_NUM_THREADS=1
+
+ranks="${MPI_RANKS:-1}"
+slots="$(wc -l < "$PBS_NODEFILE")"
+nodes="$(sort -u "$PBS_NODEFILE" | wc -l)"
+expected_nodes="$(( (ranks + 31) / 32 ))"
+if (( slots != ranks || nodes != expected_nodes )); then
+    printf 'Expected %s ranks on %s nodes, allocated %s slots on %s nodes\n' \
+        "$ranks" "$expected_nodes" "$slots" "$nodes" >&2
+    exit 1
+fi
+
+build_dir="build/${PBS_JOBID}"
+output_dir="results/${PBS_JOBID}"
+mkdir -p "$output_dir"
+mpi_flags="--map-by slot --bind-to core"
+{
+    date -u
+    printf 'PBS job %s\n' "$PBS_JOBID"
+    printf 'MPI rank slots by host\n'
+    sort "$PBS_NODEFILE" | uniq -c
+    lscpu
+    mpicxx --showme:command
+    c++ --version
+    mpiexec --version
+    python3 --version
+} > "$output_dir/environment.txt"
+mpiexec --map-by slot --bind-to core --report-bindings -n "$ranks" /bin/true \
+    > "$output_dir/rank_bindings.txt" 2>&1
+
+make BUILD_DIR="$build_dir" all
+if (( ranks == 1 || ranks == 8 || ranks == 256 )); then
+    make BUILD_DIR="$build_dir" CHECK_RANKS="$ranks" MPIEXEC_FLAGS="$mpi_flags" check \
+        | tee "$output_dir/validation.txt"
+fi
+python3 scripts/benchmark_mpi.py --binary "$build_dir/mpi_pf" \
+    --resampling-binary "$build_dir/resampling_bench" --output-dir "$output_dir" \
+    --launcher-flags="$mpi_flags" --ranks "$ranks" --expected-nodes "$nodes"
