@@ -1,0 +1,65 @@
+#!/bin/bash
+#PBS -N dsa5208_cuda_pf
+#PBS -l walltime=00:15:00
+#PBS -j oe
+
+set -eo pipefail
+cd "${PBS_O_WORKDIR:?Submit using cuda/scripts/submit_vanda.sh}"
+if ! type module >/dev/null 2>&1; then
+    source /etc/profile.d/modules.sh
+fi
+stack="${CUDA_MPI_STACK:-hpcx}"
+case "$stack" in
+    hpcx) module load nvhpc-hpcx-2.20-cuda12/26.1 ;;
+    stock) module load openmpi/gcc/64/4.1.8 ;;
+    *) printf 'Unknown MPI stack %s\n' "$stack" >&2; exit 2 ;;
+esac
+module load cuda12.4/toolkit/12.4.1
+set -u
+export OMPI_CXX=g++
+export OMP_NUM_THREADS=1
+export CUDA_DEVICE_ORDER=PCI_BUS_ID
+export LD_LIBRARY_PATH="/opt/pbs/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+gpus="${CUDA_BENCH_GPUS:?Expected CUDA_BENCH_GPUS from submission script}"
+nodefile="${PBS_NODEFILE:?PBS did not provide the node file}"
+hosts="$(sort -u "$nodefile" | wc -l)"
+slots="$(wc -l < "$nodefile")"
+if [[ "$gpus" != 1 && "$gpus" != 2 ]] || (( hosts != 1 || slots < gpus )); then
+    printf 'Expected %s MPI slots on one GPU node. Got %s slots on %s hosts.\n' "$gpus" "$slots" "$hosts" >&2
+    exit 1
+fi
+out="cuda/results/${PBS_JOBID:?PBS job ID is required}"
+mkdir -p "$out"
+host="$(head -n 1 "$nodefile")"
+flags="--host $host:$gpus --map-by slot"
+if [[ "$stack" == hpcx ]]; then
+    # Keep the CPU cpuset that PBS already applied to this one-node job.
+    export UCX_TLS=self,sm,cuda_copy,cuda_ipc
+    flags+=" --bind-to none --mca pml ucx --mca coll_hcoll_enable 0"
+else
+    flags+=" --bind-to core"
+fi
+{
+    date -u
+    printf 'PBS job %s, MPI stack %s\n' "$PBS_JOBID" "$stack"
+    printf 'Launcher flags %s\n' "$flags"
+    printf 'UCX_TLS=%s\n' "${UCX_TLS:-}"
+    awk '/^Cpus_allowed_list:/ {print}' /proc/self/status
+    sort "$nodefile" | uniq -c
+    nvidia-smi --query-gpu=name,driver_version,memory.total,pci.bus_id --format=csv
+    nvidia-smi topo -m
+    lscpu | awk '/^Architecture:|^Model name:|^Core.s. per socket:|^Socket.s.:/'
+    nvcc --version
+    mpicxx --showme:version
+    g++ --version | head -n 1
+    sha256sum cuda/Makefile cuda/src/* cuda/scripts/*.py mpi/src/philox.hpp mpi/src/mpi_filter.* \
+        serial/src/particle_filter.*
+} > "$out/environment.txt"
+
+make -C cuda BUILD_DIR="build/$stack" -j "$gpus"
+args=(--gpus "$gpus" --binary "cuda/build/$stack/cuda_pf" --output "$out" --launcher-flags="$flags")
+if [[ "${CUDA_BENCH_VALIDATE_ONLY:-0}" == 1 ]]; then
+    args+=(--validate-only)
+fi
+python3 -u cuda/scripts/benchmark.py "${args[@]}"
