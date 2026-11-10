@@ -162,8 +162,9 @@ this sequence. The [validation log](benchmarks/local/validation.txt) shows
 that the methods agree on the deterministic tests and that the MPI filter
 approaches the Kalman reference as the particle count increases.
 
-These are one-host results. The Vanda submission on 9 November 2026 was
-blocked by a PBS connection error, so cross-node scaling is pending.
+The [Vanda Gold results](benchmarks/vanda-gold-5-repeats/) cover 1 to 128
+MPI ranks on Xeon Gold 6438N, with five measurements per setting and
+validation on every allocation.
 
 ## AI use
 

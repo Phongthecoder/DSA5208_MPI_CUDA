@@ -1,0 +1,19 @@
+ranks	job_id	host	cpu_model
+1	1535968.stdct-mgmt-02	in-007	Intel(R) Xeon(R) Gold 6438N
+2	1535969.stdct-mgmt-02	in-008	Intel(R) Xeon(R) Gold 6438N
+4	1535971.stdct-mgmt-02	in-009	Intel(R) Xeon(R) Gold 6438N
+8	1535973.stdct-mgmt-02	in-020	Intel(R) Xeon(R) Gold 6438N
+16	1535974.stdct-mgmt-02	in-001	Intel(R) Xeon(R) Gold 6438N
+32	1535977.stdct-mgmt-02	in-010	Intel(R) Xeon(R) Gold 6438N
+64	1535972.stdct-mgmt-02	in-010	Intel(R) Xeon(R) Gold 6438N
+64	1535972.stdct-mgmt-02	in-012	Intel(R) Xeon(R) Gold 6438N
+64	1535972.stdct-mgmt-02	in-014	Intel(R) Xeon(R) Gold 6438N
+64	1535972.stdct-mgmt-02	in-019	Intel(R) Xeon(R) Gold 6438N
+128	1535970.stdct-mgmt-02	in-001	Intel(R) Xeon(R) Gold 6438N
+128	1535970.stdct-mgmt-02	in-010	Intel(R) Xeon(R) Gold 6438N
+128	1535970.stdct-mgmt-02	in-011	Intel(R) Xeon(R) Gold 6438N
+128	1535970.stdct-mgmt-02	in-012	Intel(R) Xeon(R) Gold 6438N
+128	1535970.stdct-mgmt-02	in-014	Intel(R) Xeon(R) Gold 6438N
+128	1535970.stdct-mgmt-02	in-016	Intel(R) Xeon(R) Gold 6438N
+128	1535970.stdct-mgmt-02	in-019	Intel(R) Xeon(R) Gold 6438N
+128	1535970.stdct-mgmt-02	in-020	Intel(R) Xeon(R) Gold 6438N
