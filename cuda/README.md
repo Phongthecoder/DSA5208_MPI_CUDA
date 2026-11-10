@@ -5,7 +5,8 @@ global-slot Philox sequence as the CPU MPI filter. Each MPI rank selects one
 GPU and verifies that ranks on the same host selected different physical
 devices. The filter keeps particles on the GPU. CUDA kernels propagate and
 weight the particles, reduce local statistics, and pack the states selected
-by systematic resampling. A CUB inclusive scan supplies the local CDF.
+by systematic resampling. A hierarchical CUB block scan supplies the
+local CDF in a fixed order across launches.
 MPI reduces the weight statistics and redistributes particle states in
 global output-slot order.
 

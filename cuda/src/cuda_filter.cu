@@ -1,7 +1,7 @@
 #include <cuda_runtime.h>
 #include <math_constants.h>
 #include <cub/block/block_reduce.cuh>
-#include <cub/device/device_scan.cuh>
+#include <cub/block/block_scan.cuh>
 
 #include "cuda_filter.hpp"
 #include "philox.hpp"
@@ -246,6 +246,49 @@ __global__ void normalize(double* log_weights, int n, double maximum, double log
     }
 }
 
+__global__ void scan_blocks(const double* input, double* cdf, double* totals, int n) {
+    using Scan = cub::BlockScan<double, block_width, cub::BLOCK_SCAN_RAKING>;
+    __shared__ typename Scan::TempStorage scratch;
+    const int i = blockIdx.x * blockDim.x + threadIdx.x;
+    double partial = i < n ? input[i] : 0.0;
+    Scan(scratch).InclusiveSum(partial, partial);
+    if (i < n) {
+        cdf[i] = partial;
+        if (threadIdx.x == block_width - 1 || i == n - 1) {
+            totals[blockIdx.x] = partial;
+        }
+    }
+}
+
+__global__ void add_block_prefix(double* cdf, const double* prefix, int n) {
+    const int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (blockIdx.x > 0 && i < n) {
+        cdf[i] += prefix[blockIdx.x - 1];
+    }
+}
+
+std::size_t scan_workspace(int n) {
+    std::size_t size = 1;
+    for (int grid = blocks(n); grid > 1; grid = blocks(grid)) {
+        size += 2 * static_cast<std::size_t>(grid);
+    }
+    return size;
+}
+
+// Each level has a fixed summation order. A floating-point device-wide scan
+// can otherwise produce different ancestry when a CDF boundary is nearly tied.
+void scan_weights(const double* weights, double* cdf, int n, double* scratch) {
+    const int grid = blocks(n);
+    scan_blocks<<<grid, block_width>>>(weights, cdf, scratch, n);
+    check(cudaGetLastError(), "scan weights within CUDA blocks");
+    if (grid > 1) {
+        auto* prefix = scratch + grid;
+        scan_weights(scratch, prefix, grid, prefix + grid);
+        add_block_prefix<<<grid, block_width>>>(cdf, prefix, n);
+        check(cudaGetLastError(), "add CUDA block prefixes");
+    }
+}
+
 struct Points {
     int count;
     double offset;
@@ -295,22 +338,16 @@ class GpuResampler {
 public:
     GpuResampler(const ParticlePartition& partition, Transport transport, MPI_Comm comm)
         : partition_(partition), transport_(transport), comm_(comm), cdf_(partition.local_size()),
-          prefix_(partition.size + 1), send_counts_(partition.size), send_offsets_(partition.size),
-          receive_counts_(partition.size), receive_offsets_(partition.size) {
-        if (partition.local_size()) {
-            check(cub::DeviceScan::InclusiveSum(nullptr, scratch_bytes_, cdf_.data(), cdf_.data(),
-                                                partition.local_size()), "size CUB scan workspace");
-            scratch_.reserve(scratch_bytes_);
-        }
-    }
+          scratch_(scan_workspace(partition.local_size())), prefix_(partition.size + 1),
+          send_counts_(partition.size), send_offsets_(partition.size), receive_counts_(partition.size),
+          receive_offsets_(partition.size) {}
 
     ResamplingStats run(const GpuState* input, const double* weights, GpuState* output,
                         double offset, double& staging_ms) {
         const int n = partition_.local_size();
         double mass = 0.0;
         if (n) {
-            check(cub::DeviceScan::InclusiveSum(scratch_.data(), scratch_bytes_, weights, cdf_.data(), n),
-                  "scan local weights");
+            scan_weights(weights, cdf_.data(), n, scratch_.data());
             check(cudaMemcpy(&mass, cdf_.data() + n - 1, sizeof(mass), cudaMemcpyDeviceToHost),
                   "read local CDF mass");
         }
@@ -400,8 +437,7 @@ private:
     Transport transport_;
     MPI_Comm comm_;
     Buffer<double> cdf_;
-    Buffer<unsigned char> scratch_;
-    std::size_t scratch_bytes_ = 0;
+    Buffer<double> scratch_;
     Buffer<GpuState> packed_;
     Buffer<GpuState, true> pinned_send_, pinned_receive_;
     std::vector<double> prefix_;

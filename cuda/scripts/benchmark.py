@@ -74,7 +74,7 @@ def measure(args, ranks, transport, particles, steps):
 def compare(reference, row):
     for key in ACCURACY:
         if not math.isclose(float(reference[key]), float(row[key]), abs_tol=1e-7, rel_tol=1e-7):
-            raise RuntimeError(f"fixed-seed result changed in {key}")
+            raise RuntimeError(f"fixed-seed result changed in {key}: {reference[key]} vs {row[key]}")
     if reference["resampled_steps"] != row["resampled_steps"]:
         raise RuntimeError("fixed-seed resampling count changed")
 
