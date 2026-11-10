@@ -64,23 +64,45 @@ so numerical comparisons use tolerances.
 Submit from a Vanda checkout that contains both `mpi/` and `serial/`.
 
 ```sh
+# Free sweep, ranks 1 to 128
 bash mpi/scripts/submit_vanda.sh
+
+# Full sweep, including 256 ranks
+bash mpi/scripts/submit_vanda.sh --project PROJECT_CODE
+
+# Repeat just the 256-rank experiment
+bash mpi/scripts/submit_vanda.sh --project PROJECT_CODE 256
 ```
 
-The script submits one `auto_free` job per rank count
-(`1 2 4 8 16 32 64 128 256`). You can pass individual counts as arguments.
-The allocation uses one rank per core, at most 32 ranks per host, and eight
-hosts at 256 ranks. The job records host slots, core binding, compiler, and MPI
-version. Each job saves its files under `mpi/results/<job_id>/`, and the
-submission directory contains `jobs.csv` and PBS logs.
+Pass your Vanda PBS project code with `--project` or set `PBS_PROJECT`.
+The script submits one job per rank count. The standard 1–128 rank jobs use
+`auto_free`; 256 ranks require the `auto` project queue, which routed the
+recorded job to `batch_cpu`. The [default Gold layouts](scripts/vanda_gold_layouts.tsv)
+match the measured configurations: eight hosts with 16 ranks each at 128,
+and eight hosts with 16–62 ranks each at 256. PBS may queue a job while the
+requested hosts or resources are busy. For new timings, run jobs that share
+hosts separately to avoid competition between your own measurements.
+
+Use `--dry-run` to print the allocation without contacting PBS. To choose a
+different set of Gold hosts, pass `--layouts FILE`; the file contains total
+ranks, PBS host, and ranks on that host, separated by tabs. Every job checks
+its actual host and rank layout against the request and probes every host
+for the exact Intel Xeon Gold 6438N model before building or timing. It uses
+one MPI rank per core and runs `make check` at the allocated rank count.
+Use `--validate-only` to run these checks without benchmarking.
+
+Each job saves its CPU models, layout, core bindings, validation log and
+timings under `mpi/results/<job_id>/`. The submission directory contains
+`plan.tsv`, per-job layout files, `jobs.csv` and PBS logs.
 
 The workload uses 256 time steps, data seed 42, filter seed 1729, one short
-warm-up, and three measured repetitions. Strong scaling holds the total at
+warm-up, and five measured repetitions. Strong scaling holds the total at
 2^22 particles. Weak scaling holds 2^14 particles per rank. Both use ESS 0.5.
-The strong sweep also compares the two resamplers. A separate resampling
-experiment uses 2^20 particles with uniform weights and with 90% of mass in
-the first 1% of particles. The ESS sweep uses 32 ranks and 2^20 particles with
-thresholds 0.25, 0.5, and 0.75, plus resampling every step.
+The strong sweep also compares the two resamplers from two ranks onward.
+A separate resampling experiment uses 2^20 particles with uniform weights
+and with 90% of mass in the first 1% of particles. The ESS sweep uses 32
+ranks and 2^20 particles with thresholds 0.25, 0.5, and 0.75, plus
+resampling every step.
 
 The filter timing is the maximum elapsed time over ranks, from particle
 allocation through the last filter step. Workflow time also covers observation
@@ -101,15 +123,18 @@ cd mpi
 JOB_TABLE=results/vanda-submit.XXXXXXXX/jobs.csv
 filter_csv=()
 resampling_csv=()
-while IFS=, read -r ranks nodes job_id; do
+while IFS=, read -r ranks nodes job_id hosts queue; do
     test "$ranks" = ranks && continue
     filter_csv+=("results/$job_id/mpi_runs.csv")
-    if (( ranks > 1 )); then
+    if [[ -f "results/$job_id/resampling_runs.csv" ]]; then
         resampling_csv+=("results/$job_id/resampling_runs.csv")
     fi
 done < "$JOB_TABLE"
-python3 scripts/summarize_mpi.py "${filter_csv[@]}" --resampling "${resampling_csv[@]}" \
-  --output-dir results/vanda-summary
+summary_inputs=("${filter_csv[@]}")
+if (( ${#resampling_csv[@]} )); then
+    summary_inputs+=(--resampling "${resampling_csv[@]}")
+fi
+python3 scripts/summarize_mpi.py "${summary_inputs[@]}" --output-dir results/vanda-summary
 ```
 
 Add `--plot-title "CPU MPI on Vanda"` when running the summary command with
@@ -163,8 +188,8 @@ that the methods agree on the deterministic tests and that the MPI filter
 approaches the Kalman reference as the particle count increases.
 
 The [Vanda Gold results](benchmarks/vanda-gold-5-repeats/) cover 1 to 128
-MPI ranks on Xeon Gold 6438N, with five measurements per setting and
-validation on every allocation.
+MPI ranks and a [separate 256-rank follow-up](benchmarks/vanda-gold-5-repeats/256-ranks/),
+with five measurements per setting and validation on every allocation.
 
 ## AI use
 

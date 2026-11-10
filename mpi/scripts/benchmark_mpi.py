@@ -6,6 +6,7 @@ import csv
 import math
 import shlex
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -19,10 +20,23 @@ def append_row(path, row):
 
 
 def invoke(args, ranks, command):
-    started = time.perf_counter()
-    completed = subprocess.run([args.launcher, *args.launcher_flags, "-n", str(ranks), *command],
-                               check=True, stdout=subprocess.PIPE, text=True)
-    launch_ms = (time.perf_counter() - started) * 1000
+    launcher = [args.launcher, *args.launcher_flags, "-n", str(ranks), *command]
+    max_attempts = 3 if args.retry_tcp_bind else 1
+    for attempt in range(1, max_attempts + 1):
+        started = time.perf_counter()
+        completed = subprocess.run(launcher, capture_output=True, text=True)
+        launch_ms = (time.perf_counter() - started) * 1000
+        if completed.stderr:
+            print(completed.stderr, end="", file=sys.stderr, flush=True)
+        if completed.returncode == 0:
+            break
+        tcp_bind_error = ("mca_btl_tcp_endpoint_start_connect" in completed.stderr
+                          and "Address already in use" in completed.stderr)
+        if not tcp_bind_error or attempt == max_attempts:
+            completed.check_returncode()
+        print(f"P={ranks}: Open MPI TCP bind failed, retrying after 65 s "
+              f"(attempt {attempt + 1}/{max_attempts}).", file=sys.stderr, flush=True)
+        time.sleep(65)
     row, = csv.DictReader(completed.stdout.splitlines())
     if int(row["ranks"]) != ranks:
         raise RuntimeError("launcher returned a different MPI rank count")
@@ -87,6 +101,8 @@ def main():
     parser.add_argument("--ess-particles", type=int, default=2**20)
     parser.add_argument("--steps", type=int, default=256)
     parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument("--retry-tcp-bind", action="store_true",
+                        help="retry a transient Open MPI TCP bind error up to twice")
     args = parser.parse_args()
     if min(args.steps, args.repeats, args.strong_particles, args.weak_per_rank,
            args.ess_particles, *args.ranks) < 1 or len(set(args.ranks)) != len(args.ranks):

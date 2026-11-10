@@ -37,6 +37,35 @@ resampling took 16.716 s and distributed resampling took 1.722 s for
 the filter. All eight correctness checks passed. The files contain 135
 filter measurements and 140 resampling measurements.
 
+## 128 versus 256 ranks
+
+The follow-up used the same source, Xeon Gold 6438N model, seeds, steps and
+five-repeat protocol. Both jobs used eight physical nodes. The 128-rank
+job used 16 ranks per node and was submitted via `auto_free`. The
+256-rank job (`1536089.stdct-mgmt-02`) used 16–62 ranks per node and
+was routed to `batch_cpu` via `auto`.
+Its PBS exit status was zero and the 256-rank validation passed.
+
+| Metric | 128 ranks | 256 ranks |
+| --- | ---: | ---: |
+| Strong filter time, distributed (s) | 1.722 | 2.214 |
+| Strong speedup, distributed | 122.51× | 95.31× |
+| Strong efficiency, distributed | 95.7% | 37.2% |
+| Weak filter time, distributed (s) | 1.066 | 2.311 |
+| Weak efficiency, distributed | 76.5% | 35.3% |
+| Strong filter time, centralized (s) | 16.716 | 15.634 |
+
+Times are medians. With distributed resampling, the 256-rank strong run
+was 28.5% slower than the 128-rank run. The propagation and weight phase
+fell from 1.361 s to 0.675 s, while time inside resampling MPI calls rose
+from 0.096 s to 1.309 s. The weak run took 2.17× as long at 256 ranks.
+These comparisons describe the tested configurations: rank count, ranks
+per node, node membership, and queue changed together.
+
+See the [256-rank archive](256-ranks/) for raw timing data, validation,
+PBS records and the scripts used in that job, and the
+[1–256 scaling figure](256-ranks/mpi_scaling.png) for the measured series.
+
 ## Data and reproduction
 
 - [Filter measurements](mpi_runs.csv) and [filter summary](mpi_summary.csv)
@@ -44,28 +73,21 @@ filter measurements and 140 resampling measurements.
 - [Scaling plot](mpi_scaling.png) and [resampling and ESS plot](mpi_resampling.png)
 - [CPU by node](cpu_model_by_node.tsv), [validation results](validation_summary.tsv), and [validation output](validation.txt)
 
-From the repository root on Vanda, copy the recorded scripts into a fresh
-results directory and submit the recorded host layout. PBS may queue jobs
-while those hosts are occupied.
+From the repository root on Vanda, submit the recorded layouts with the
+maintained entry point. Supply your Vanda project code for 256 ranks.
+
+~~~bash
+bash mpi/scripts/submit_vanda.sh --project PROJECT_CODE
+~~~
+
+Each job writes measurements to `mpi/results/<job_id>/`. The original
+1–128 scripts are kept in [reproduce/](reproduce/). To rebuild the
+summaries and plots from the published measurements, run
 
 ~~~bash
 bench=mpi/benchmarks/vanda-gold-5-repeats
-mkdir -p mpi/results
-run_dir=$(mktemp -d "$PWD/mpi/results/vanda-gold5-replay.XXXXXXXX")
-cp "$bench"/reproduce/* "$run_dir/"
-while IFS=, read -r ranks nodes previous_job hosts; do
-    [[ "$ranks" == ranks ]] && continue
-    IFS=+ read -r -a selected_hosts <<< "$hosts"
-    MPI_RANKS_PER_NODE="$((ranks / nodes))" bash "$run_dir/submit_rank.sh" "$ranks" "${selected_hosts[@]}"
-done < "$bench/jobs.csv"
-~~~
-
-The replay records PBS jobs in `$run_dir/jobs.csv`. Each job writes
-measurements to `mpi/results/<job_id>/`. To rebuild the plots from
-the published measurements, run
-
-~~~bash
 python3 mpi/scripts/summarize_mpi.py "$bench/mpi_runs.csv" \
-  --resampling "$bench/resampling_runs.csv" --output-dir mpi/results/vanda-gold5-summary \
-  --plot-title "CPU MPI on Vanda | Xeon Gold 6438N | Five repeats"
+  "$bench/256-ranks/mpi_runs.csv" --resampling "$bench/resampling_runs.csv" \
+  "$bench/256-ranks/resampling_runs.csv" --output-dir mpi/results/vanda-gold5-summary \
+  --plot-title "Vanda | Xeon Gold 6438N | 256 ranks use a different host layout"
 ~~~

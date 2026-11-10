@@ -1,0 +1,14 @@
+job_id	1536089.stdct-mgmt-02
+queue	batch_cpu
+state	F
+exit_status	0
+comment	Job run at Tue Nov 10 at 19:00 on (IN-010[0]:mem=256421mb:ncpus=32+IN-010[1]:mem=187995mb:ncpus=30)+(IN-006[0]:mem=256463mb:ncpus=32+IN-006[1]:mem=159281mb:ncpus=26)+(IN-012[1]:ncpus=28:mem=196gb)+(IN-014[1]:ncpus=28:mem=196gb)+(IN-019[1]:ncpus=24:mem=... and finished
+ncpus	256
+nodes	8
+select	1:ncpus=62:mpiprocs=62:ompthreads=1:mem=434gb:node_pool=cpu_free:host=in-010+1:ncpus=58:mpiprocs=58:ompthreads=1:mem=406gb:node_pool=cpu_free:host=in-006+1:ncpus=28:mpiprocs=28:ompthreads=1:mem=196gb:node_pool=cpu_free:host=in-012+1:ncpus=28:mpiprocs=28:ompthreads=1:mem=196gb:node_pool=cpu_free:host=in-014+1:ncpus=24:mpiprocs=24:ompthreads=1:mem=168gb:node_pool=cpu_free:host=in-019+1:ncpus=24:mpiprocs=24:ompthreads=1:mem=168gb:node_pool=cpu_free:host=in-020+1:ncpus=16:mpiprocs=16:ompthreads=1:mem=112gb:node_pool=cpu_free:host=in-011+1:ncpus=16:mpiprocs=16:ompthreads=1:mem=112gb:node_pool=cpu_free:host=in-009
+exec_host	IN-010/0*0+IN-006/0*0+IN-012/1*28+IN-014/1*28+IN-019/1*24+IN-020/1*24+IN-011/1*16+IN-009/1*16
+exec_vnode	(IN-010[0]:mem=256421mb:ncpus=32+IN-010[1]:mem=187995mb:ncpus=30)+(IN-006[0]:mem=256463mb:ncpus=32+IN-006[1]:mem=159281mb:ncpus=26)+(IN-012[1]:ncpus=28:mem=196gb)+(IN-014[1]:ncpus=28:mem=196gb)+(IN-019[1]:ncpus=24:mem=168gb)+(IN-020[1]:ncpus=24:mem=168gb)+(IN-011[1]:ncpus=16:mem=112gb)+(IN-009[1]:ncpus=16:mem=112gb)
+start_time	Tue Nov 10 19:00:55 2026
+last_update	Tue Nov 10 19:04:31 2026
+walltime	00:03:33
+peak_memory	2022244kb

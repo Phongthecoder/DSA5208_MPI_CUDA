@@ -1,0 +1,85 @@
+#!/bin/bash
+#PBS -N dsa5208_cpu_mpi
+#PBS -q auto
+#PBS -l select=1:ncpus=1:mpiprocs=1:ompthreads=1:mem=8gb
+#PBS -l walltime=00:20:00
+#PBS -j oe
+
+set -eo pipefail
+cd "${PBS_O_WORKDIR:?Submit using scripts/submit_vanda.sh}"
+if [[ -f mpi/Makefile ]]; then
+    cd mpi
+fi
+
+if ! type module >/dev/null 2>&1; then
+    source /etc/profile.d/modules.sh
+fi
+module load openmpi/gcc/64/4.1.8
+set -u
+export LD_LIBRARY_PATH="/opt/pbs/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export OMP_NUM_THREADS=1
+
+ranks="${MPI_RANKS:-1}"
+slots="$(wc -l < "$PBS_NODEFILE")"
+nodes="$(sort -u "$PBS_NODEFILE" | wc -l)"
+layout="${MPI_GOLD_LAYOUT:?A planned Gold node layout is required}"
+expected_nodes="$(wc -l < "$layout")"
+if (( ranks != 256 || slots != ranks || nodes != expected_nodes )) ||
+   ! awk '
+      FNR == NR {expected[$1] = $2; next}
+      {
+        host = tolower($1)
+        sub(/\..*/, "", host)
+        actual[host]++
+      }
+      END {
+        for (host in expected) if (actual[host] != expected[host]) bad = 1
+        for (host in actual) if (!(host in expected)) bad = 1
+        exit bad
+      }
+   ' "$layout" "$PBS_NODEFILE"; then
+    printf 'PBS allocation did not match the planned Gold node layout.\n' >&2
+    exit 1
+fi
+
+build_dir="build/${PBS_JOBID}"
+output_dir="results/${PBS_JOBID}"
+mkdir -p "$output_dir"
+mpi_flags="--map-by slot --bind-to core"
+
+expected_cpu="$(cat "${MPI_CPU_MODEL_FILE:?Expected CPU model file is required}")"
+test -n "$expected_cpu"
+mpiexec --map-by ppr:1:node --bind-to core -n "$nodes" bash -c '
+  cpu_model=$(LC_ALL=C lscpu | awk -F": +" "/^Model name:/ {print \$2; exit}")
+  test -n "$cpu_model" || exit 1
+  printf "%s\t%s\n" "$(hostname -s)" "$cpu_model"
+' | LC_ALL=C sort > "$output_dir/cpu_models.tsv"
+if ! awk -F '\t' -v expected="$expected_cpu" -v nodes="$nodes" '
+  NF != 2 || $1 == "" || $2 != expected || seen[$1]++ {bad=1}
+  END {exit (bad || NR != nodes)}
+' "$output_dir/cpu_models.tsv"; then
+  printf 'Expected %s on all %s nodes. Observed:\n' "$expected_cpu" "$nodes" >&2
+  cat "$output_dir/cpu_models.tsv" >&2
+  exit 1
+fi
+cat "$output_dir/cpu_models.tsv"
+{
+    date -u
+    printf 'PBS job %s\n' "$PBS_JOBID"
+    printf 'MPI rank slots by host\n'
+    sort "$PBS_NODEFILE" | uniq -c
+    lscpu
+    mpicxx --showme:command
+    c++ --version
+    mpiexec --version
+    python3 --version
+} > "$output_dir/environment.txt"
+mpiexec --map-by slot --bind-to core --report-bindings -n "$ranks" /bin/true \
+    > "$output_dir/rank_bindings.txt" 2>&1
+
+make BUILD_DIR="$build_dir" all
+make BUILD_DIR="$build_dir" CHECK_RANKS="$ranks" MPIEXEC_FLAGS="$mpi_flags" check \
+    | tee "$output_dir/validation.txt"
+python3 "$(dirname "$MPI_CPU_MODEL_FILE")/benchmark_mpi_same_cpu.py" --binary "$build_dir/mpi_pf" \
+    --resampling-binary "$build_dir/resampling_bench" --output-dir "$output_dir" \
+    --launcher-flags="$mpi_flags" --ranks "$ranks" --expected-nodes "$nodes" --repeats 5
