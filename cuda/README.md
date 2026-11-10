@@ -32,6 +32,8 @@ set `CUDA_BENCH_VALIDATE_ONLY=1`. The default MPI stack is HPC-X. Use
 `CUDA_MPI_STACK=stock` to run the staged path with Open MPI 4.1.8.
 The job prints the PBS ID and writes its logs and CSVs to
 `cuda/results/<job_id>/`.
+With HPC-X, MPI ranks inherit the job's PBS CPU affinity. The per-rank GPU
+bindings and actual MPI launcher flags are saved alongside the results.
 
 Validation checks exact resampling ancestry against the serial oracle,
 including a CDF boundary, zero-mass ranks and empty ranks. It also checks

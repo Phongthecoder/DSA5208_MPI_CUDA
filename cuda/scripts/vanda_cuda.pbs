@@ -57,8 +57,9 @@ fi
         serial/src/particle_filter.*
 } > "$out/environment.txt"
 
-make -C cuda BUILD_DIR="build/$stack" -j "$gpus"
-args=(--gpus "$gpus" --binary "cuda/build/$stack/cuda_pf" --output "$out" --launcher-flags="$flags")
+build="build/$stack-$PBS_JOBID"
+make -C cuda BUILD_DIR="$build" -j "$gpus"
+args=(--gpus "$gpus" --binary "cuda/$build/cuda_pf" --output "$out" --launcher-flags="$flags")
 if [[ "${CUDA_BENCH_VALIDATE_ONLY:-0}" == 1 ]]; then
     args+=(--validate-only)
 fi
