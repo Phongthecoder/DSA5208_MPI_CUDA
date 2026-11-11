@@ -20,9 +20,15 @@ and [NVIDIA CUB](https://nvidia.github.io/cccl/unstable/cub/index.html).
 
 ## Run on Vanda
 
-From the repository root, submit a job for one or two NVIDIA A40 GPUs:
+Use the `cuda-experiments` branch with the `cuda/`, `mpi/` and `serial/`
+directories from this repository. The build requires a C++17 compiler,
+CUDA and Open MPI. The Python scripts require Python 3.8 or newer.
+Matplotlib is needed for figures.
+
+From the repository root on Vanda, select the branch and submit a job:
 
 ~~~bash
+git switch cuda-experiments
 bash cuda/scripts/submit_vanda.sh 2
 ~~~
 
@@ -71,6 +77,36 @@ Replace `YOUR_JOB_ID` with the job ID. The CPU comparison matches particle
 count, step count, seeds, ESS threshold and filter timing scope. The CPU
 data was collected on Xeon Gold 6438N nodes. It is a comparison of measured
 configurations on different hardware.
+
+## Measured Vanda results
+
+On 10 November 2026, the complete sweep used two NVIDIA A40 GPUs on one
+Vanda node. All three validation configurations passed and each timing
+configuration has five measurements. The scaling baseline comes from the
+one-GPU measurements in that same allocation.
+
+| Configuration | Strong median (s) | Strong efficiency | Weak median (s) | Weak efficiency |
+| --- | ---: | ---: | ---: | ---: |
+| 1 GPU | 1.411 | 100.0% | 0.366 | 100.0% |
+| 2 GPUs, host staging | 2.212 | 31.9% | 1.119 | 32.7% |
+| 2 GPUs, device buffers | 0.755 | 93.4% | 0.396 | 92.4% |
+
+Device-buffer exchange gave 1.87 times strong-scaling speedup over one GPU.
+The matching 128-rank Gold CPU MPI workload took 1.722 s, compared with
+0.755 s on the two A40s using device buffers. The measurements cover
+one-node GPU scaling.
+
+The [experiment archive](benchmarks/vanda-a40-20261110/) includes the raw
+timings, summaries, figure, validations, hardware and PBS records, source
+fingerprints, and an independent one-GPU check. Rebuild the published
+summaries and figure from the repository root with
+
+~~~bash
+bench=cuda/benchmarks/vanda-a40-20261110
+python3 cuda/scripts/summarize.py "$bench/gpu_runs.csv" \
+  --cpu-summary mpi/benchmarks/vanda-gold-5-repeats/mpi_summary.csv \
+  --output cuda/results/rebuilt-a40 --plot
+~~~
 
 OpenAI Codex assisted with implementing the CUDA filter, writing the
 benchmark and validation scripts, and preparing the results.
