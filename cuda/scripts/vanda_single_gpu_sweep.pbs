@@ -1,0 +1,49 @@
+#!/bin/bash
+#PBS -N dsa5208_a40_sizes
+#PBS -l walltime=00:20:00
+#PBS -j oe
+set -eo pipefail
+cd "${PBS_O_WORKDIR:?}"
+if ! type module >/dev/null 2>&1; then source /etc/profile.d/modules.sh; fi
+module load nvhpc-hpcx-2.20-cuda12/26.1
+module load cuda12.4/toolkit/12.4.1
+set -u
+export CUDA_MPI_STACK=hpcx
+export OMPI_CXX=g++
+export OMP_NUM_THREADS=1
+export CUDA_DEVICE_ORDER=PCI_BUS_ID
+export LD_LIBRARY_PATH="/opt/pbs/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export UCX_TLS=self,sm,cuda_copy,cuda_ipc
+out="cuda/results/${PBS_JOBID:?}"
+mkdir -p "$out"
+host="$(head -n 1 "${PBS_NODEFILE:?}")"
+flags="--host $host:1 --map-by slot --bind-to none --mca pml ucx --mca coll_hcoll_enable 0"
+model="$(LC_ALL=C lscpu | awk -F': +' '/^Model name:/ {print $2; exit}')"
+{
+    date -u
+    printf 'PBS job %s\nCPU model %s\nLauncher flags %s\n' "$PBS_JOBID" "$model" "$flags"
+    printf 'MPI rank slots by host\n'
+    sort "$PBS_NODEFILE" | uniq -c
+    awk '/^Cpus_allowed_list:/ {print}' /proc/self/status
+    nvidia-smi --query-gpu=name,driver_version,memory.total,pci.bus_id --format=csv
+    nvidia-smi topo -m
+    lscpu
+    nvcc --version
+    mpicxx --showme:version
+    g++ --version | head -n 1
+    python3 --version
+} > "$out/environment.txt"
+if [[ "$model" != 'Intel(R) Xeon(R) Platinum 8452Y' ]]; then
+    printf 'Expected Platinum 8452Y host CPU, found %s\n' "$model" >&2
+    exit 1
+fi
+if (( $(sort -u "$PBS_NODEFILE" | wc -l) != 1 )); then
+    printf 'Single-GPU sweep requires exactly one host.\n' >&2; exit 1
+fi
+sha256sum cuda/Makefile cuda/src/* cuda/scripts/*.py mpi/src/philox.hpp mpi/src/mpi_filter.* \
+    serial/src/particle_filter.* > "$out/source_sha256.txt"
+build="build/hpcx-$PBS_JOBID"
+make -C cuda BUILD_DIR="$build" -j 2
+python3 -u cuda/scripts/benchmark_particle_sweep.py --binary "cuda/$build/cuda_pf" \
+    --output "$out" --launcher-flags="$flags" --particle-powers 10 12 14 16 18 20 22 \
+    --repeats 5 --steps 256 --warmup-steps 8

@@ -1,0 +1,2 @@
+rank	host	local_rank	pci_bus	gpu	cuda_aware_mpi
+0	GN-A40-102	0	0000:AD:00.0	NVIDIA A40	1

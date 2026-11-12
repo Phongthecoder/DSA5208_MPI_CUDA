@@ -78,6 +78,79 @@ count, step count, seeds, ESS threshold and filter timing scope. The CPU
 data was collected on Xeon Gold 6438N nodes. It is a comparison of measured
 configurations on different hardware.
 
+## Single-GPU particle-count sweep
+
+The [11 November A40 sweep](benchmarks/vanda-a40-particle-sweep-20261111/)
+contains all 35 timings, seven warm-ups, correctness records and figures.
+PBS job 1541447.stdct-mgmt-02 completed with exit status zero on GN-A40-102,
+using one A40, two host CPU cores and 8 GB host memory. The host CPU model
+was Intel Xeon Platinum 8452Y. Each particle count has five measured runs.
+
+| Particles | Median filter time (ms) |
+| --- | ---: |
+| 2^10 = 1,024 | 18.896 |
+| 2^12 = 4,096 | 19.030 |
+| 2^14 = 16,384 | 19.314 |
+| 2^16 = 65,536 | 39.260 |
+| 2^18 = 262,144 | 104.120 |
+| 2^20 = 1,048,576 | 360.632 |
+| 2^22 = 4,194,304 | 1405.915 |
+
+The 2^10–2^14 cases stay close to 19 ms, consistent with fixed per-step
+overhead dominating small populations. From 2^20 to 2^22, four times as
+many particles take 3.90 times as long, close to linear runtime growth.
+These are filter timings; complete executable startup is recorded separately.
+
+![Single-A40 runtime, throughput and phase breakdown](benchmarks/vanda-a40-particle-sweep-20261111/single_gpu_particle_sweep.png)
+
+The [raw runs](benchmarks/vanda-a40-particle-sweep-20261111/gpu_sweep_runs.csv),
+[summary](benchmarks/vanda-a40-particle-sweep-20261111/gpu_sweep_summary.csv),
+[validation log](benchmarks/vanda-a40-particle-sweep-20261111/validation_p1_staged.txt)
+and [hardware/PBS records](benchmarks/vanda-a40-particle-sweep-20261111/pbs_job.tsv)
+are available in the experiment archive.
+
+Submit one A40 in the free queue:
+
+~~~bash
+bash cuda/scripts/submit_single_gpu_sweep.sh
+~~~
+
+The separate job checks the allocated host CPU is Platinum 8452Y and the
+selected GPU is an A40. It runs the existing GPU correctness suite, then
+measures particle counts 2^10, 2^12, 2^14, 2^16, 2^18, 2^20, and 2^22.
+Each count has an eight-step warm-up run and five measured runs with 256
+steps, seeds 42/1729, and systematic resampling when ESS < 0.5*N.
+The single GPU uses one MPI rank; its staged transport has no off-rank
+particle exchange.
+
+Results include gpu_sweep_runs.csv, warmup_runs.csv, GPU bindings,
+validation output, actual launcher flags, source fingerprints, and the
+hardware environment in cuda/results/<job_id>/.
+
+~~~bash
+python3 cuda/scripts/summarize_particle_sweep.py \
+  cuda/results/YOUR_JOB_ID/gpu_sweep_runs.csv \
+  --output cuda/results/YOUR_JOB_ID/summary --plot
+~~~
+
+The summary reports median and min–max filter times, throughput, recorded
+phase times, resampling counts, and the runtime growth exponent between
+adjacent particle counts. Filter time includes device-array allocation and
+initialization; process startup is recorded separately in launch_wall_ms.
+ESS-triggered resampling counts can change with N and must be considered
+when interpreting departures from linear runtime growth.
+
+Rebuild the archived summary and figure locally, without submitting a job:
+
+~~~bash
+bench=cuda/benchmarks/vanda-a40-particle-sweep-20261111
+python3 cuda/scripts/summarize_particle_sweep.py "$bench/gpu_sweep_runs.csv" \
+  --output cuda/results/rebuilt-single-a40 --plot
+~~~
+
+The plotting command needs Matplotlib 3.7 or newer. The archive includes
+a complete source snapshot and the fingerprints of files used by the run.
+
 ## Measured Vanda results
 
 On 10 November 2026, the complete sweep used two NVIDIA A40 GPUs on one
