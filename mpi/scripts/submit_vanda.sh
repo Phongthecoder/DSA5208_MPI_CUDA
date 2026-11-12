@@ -72,7 +72,7 @@ for ranks in "${requested[@]}"; do
     fi
     seen+="$ranks "
     queue=auto_free
-    if (( ranks > 128 )); then
+    if [[ -n "$project" ]] || (( ranks > 128 )); then
         if [[ ! "$project" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
             printf '%s ranks require a PBS project code (--project CODE or PBS_PROJECT).\n' "$ranks" >&2
             exit 2
@@ -105,9 +105,9 @@ for ranks in "${requested[@]}"; do
         mem_gb=8
         if [[ "$queue" == auto ]]; then
             # Match the per-core memory request of the recorded project job.
-            mem_gb=$((7 * slots))
+            mem_gb=$(( slots < 4 ? 8 : 2 * slots ))
         fi
-        chunks+=("1:ncpus=$slots:mpiprocs=$slots:ompthreads=1:mem=${mem_gb}gb:node_pool=cpu_free:host=$host")
+        chunks+=("1:ncpus=$slots:mpiprocs=$slots:ompthreads=1:mem=${mem_gb}gb:host=$host")
         hosts+=("$host")
     done <<< "$layout"
     selected_layouts+=("$layout")
@@ -145,7 +145,7 @@ for i in "${!requested[@]}"; do
                -v "MPI_RANKS=$ranks,MPI_GOLD_LAYOUT=$layout,MPI_VALIDATE_ONLY=$validate_only"
                -N "dsa5208_mpi_p$ranks" -o "$submit_dir/p$ranks.log")
     if [[ "${queues[i]}" == auto ]]; then
-        qsub_args+=(-P "$project" -l walltime=00:20:00)
+        qsub_args+=(-P "$project" -l walltime=01:00:00)
     fi
     job_id="$(qsub "${qsub_args[@]}" scripts/vanda_mpi.pbs)"
     printf '%s,%s,%s,%s,%s\n' "$ranks" "${node_counts[i]}" "$job_id" "${host_lists[i]}" "${queues[i]}" |

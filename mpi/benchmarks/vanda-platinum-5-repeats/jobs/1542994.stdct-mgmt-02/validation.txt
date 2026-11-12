@@ -1,0 +1,23 @@
+mpicxx -DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX -I../serial/src -Isrc -O3 -Wall -Wextra -Wpedantic -std=c++17  tests/validate_mpi.cpp build/1542994.stdct-mgmt-02/mpi_filter.o build/1542994.stdct-mgmt-02/serial_filter.o  -o build/1542994.stdct-mgmt-02/validate_mpi
+set -e; for ranks in 16; do mpiexec --map-by slot --bind-to core -n $ranks build/1542994.stdct-mgmt-02/validate_mpi; done
+[CN-122:1172508] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172505] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172501] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172502] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172497] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172498] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172500] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172499] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172511] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172521] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172514] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172518] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172527] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172523] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172529] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-122:1172531] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=2.521680 m, velocity RMSE=0.389389 m/s, standardized covariance RMSE=0.196151, log-likelihood error/step=0.024105
+Kalman comparison N=65536 position RMSE=0.296522 m, velocity RMSE=0.048683 m/s, standardized covariance RMSE=0.031476, log-likelihood error/step=0.001637
+Range-bearing position RMSE over six tracks: MPI=7.873052 m, serial=7.754915 m, observations=22.111531 m
+All MPI checks passed on 16 ranks.

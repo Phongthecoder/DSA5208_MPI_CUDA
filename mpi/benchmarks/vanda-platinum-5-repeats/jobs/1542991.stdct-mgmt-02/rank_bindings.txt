@@ -1,0 +1,2 @@
+[CN-006:2731918] MCW rank 1 bound to socket 0[core 1[hwt 0]]: [./B][]
+[CN-006:2731918] MCW rank 0 bound to socket 0[core 0[hwt 0]]: [B/.][]

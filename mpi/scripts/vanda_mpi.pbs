@@ -46,7 +46,7 @@ build_dir="build/${PBS_JOBID}"
 output_dir="results/${PBS_JOBID}"
 mkdir -p "$output_dir"
 mpi_flags="--map-by slot --bind-to core"
-expected_cpu='Intel(R) Xeon(R) Gold 6438N'
+expected_cpu='Intel(R) Xeon(R) Platinum 8452Y'
 mpiexec --map-by ppr:1:node --bind-to core -n "$nodes" bash -c '
     model=$(LC_ALL=C lscpu | awk -F": +" "/^Model name:/ {print \$2; exit}")
     test -n "$model" || exit 1
