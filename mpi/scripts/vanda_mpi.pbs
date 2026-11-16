@@ -20,7 +20,7 @@ export LD_LIBRARY_PATH="/opt/pbs/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 export OMP_NUM_THREADS=1
 
 ranks="${MPI_RANKS:?Submit using scripts/submit_vanda.sh}"
-layout="${MPI_GOLD_LAYOUT:?A planned Gold node layout is required}"
+layout="${MPI_LAYOUT:?A planned node layout is required}"
 nodefile="${PBS_NODEFILE:?PBS node file is required}"
 if [[ ! -s "$layout" || ! -s "$nodefile" ]] || ! awk -v ranks="$ranks" '
     FNR == NR {expected[$1] = $2; next}
@@ -36,7 +36,7 @@ if [[ ! -s "$layout" || ! -s "$nodefile" ]] || ! awk -v ranks="$ranks" '
         exit (bad || slots != ranks)
     }
 ' "$layout" "$nodefile"; then
-    printf 'PBS allocation did not match the planned Gold layout: %s\n' "$layout" >&2
+    printf 'PBS allocation did not match the planned layout: %s\n' "$layout" >&2
     exit 1
 fi
 nodes="$(wc -l < "$layout")"

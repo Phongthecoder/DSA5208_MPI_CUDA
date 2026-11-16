@@ -64,30 +64,33 @@ so numerical comparisons use tolerances.
 Submit from a Vanda checkout that contains both `mpi/` and `serial/`.
 
 ```sh
-# Free sweep, ranks 1 to 128
-bash mpi/scripts/submit_vanda.sh
-
-# Full sweep, including 256 ranks
+# Full sweep, ranks 1 to 256
 bash mpi/scripts/submit_vanda.sh --project PROJECT_CODE
 
-# Repeat just the 256-rank experiment
-bash mpi/scripts/submit_vanda.sh --project PROJECT_CODE 256
+# Repeat just the 64-rank experiment
+bash mpi/scripts/submit_vanda.sh --project PROJECT_CODE 64
 ```
 
 Pass your Vanda PBS project code with `--project` or set `PBS_PROJECT`.
-The script submits one job per rank count. The standard 1–128 rank jobs use
-`auto_free`; 256 ranks require the `auto` project queue, which routed the
-recorded job to `batch_cpu`. The [default Gold layouts](scripts/vanda_gold_layouts.tsv)
-match the measured configurations: eight hosts with 16 ranks each at 128,
-and eight hosts with 16–62 ranks each at 256. PBS may queue a job while the
-requested hosts or resources are busy. For new timings, run jobs that share
-hosts separately to avoid competition between your own measurements.
+The script submits one job per rank count to the `auto` project queue, which
+routes them to `batch_cpu`. Without a project code, jobs of up to 128 ranks
+go to `auto_free`, whose node pool has few Platinum hosts. The
+[default Platinum layouts](scripts/vanda_platinum_layouts.tsv) match the
+measured configurations: one node up to 32 ranks, four hosts with 16 ranks
+each at 64, and the same eight hosts with 16 and 32 ranks each at 128 and
+256. The layouts pin named hosts, so PBS queues a job until those hosts are
+free; edit the layout file to use other hosts. Before choosing a host, check
+`pbsnodes -v "cn-XXX[0]"` for the comment "Unable to clean up one or more
+cgroups", which makes every job on that host fail to start. The
+[Gold layouts](scripts/vanda_gold_layouts.tsv) reproduce the earlier
+Xeon Gold 6438N runs; pass them with `--layouts` and change `expected_cpu`
+in `scripts/vanda_mpi.pbs`.
 
 Use `--dry-run` to print the allocation without contacting PBS. To choose a
-different set of Gold hosts, pass `--layouts FILE`; the file contains total
+different set of hosts, pass `--layouts FILE`; the file contains total
 ranks, PBS host, and ranks on that host, separated by tabs. Every job checks
 its actual host and rank layout against the request and probes every host
-for the exact Intel Xeon Gold 6438N model before building or timing. It uses
+for the exact Intel Xeon Platinum 8452Y model before building or timing. It uses
 one MPI rank per core and runs `make check` at the allocated rank count.
 Use `--validate-only` to run these checks without benchmarking.
 
@@ -187,9 +190,13 @@ this sequence. The [validation log](benchmarks/local/validation.txt) shows
 that the methods agree on the deterministic tests and that the MPI filter
 approaches the Kalman reference as the particle count increases.
 
-The [Vanda Gold results](benchmarks/vanda-gold-5-repeats/) cover 1 to 128
-MPI ranks and a [separate 256-rank follow-up](benchmarks/vanda-gold-5-repeats/256-ranks/),
-with five measurements per setting and validation on every allocation.
+The [Vanda Platinum results](benchmarks/vanda-platinum-5-repeats/) are the
+ones used in the report. They cover 1 to 256 MPI ranks on Xeon Platinum 8452Y
+nodes, with five measurements per setting and validation on every allocation;
+`jobs.csv` lists the nine jobs and `figures/` holds the report figures. The
+earlier [Vanda Gold results](benchmarks/vanda-gold-5-repeats/) cover 1 to 128
+ranks on Xeon Gold 6438N nodes and a
+[separate 256-rank follow-up](benchmarks/vanda-gold-5-repeats/256-ranks/).
 
 ## AI use
 

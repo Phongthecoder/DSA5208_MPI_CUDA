@@ -6,9 +6,10 @@ usage() {
 Usage: submit_vanda.sh [--project CODE] [--layouts FILE] [--dry-run]
                        [--validate-only] [RANKS ...]
 
-The default Xeon Gold sweep is 1 2 4 8 16 32 64 128, plus 256 when a PBS
-project is supplied with --project or PBS_PROJECT. The layout file has
-three tab-separated columns: total ranks, PBS host, and ranks on that host.
+The default sweep is 1 2 4 8 16 32 64 128, plus 256 when a PBS project is
+supplied with --project or PBS_PROJECT. The default layouts pin Xeon
+Platinum 8452Y hosts. The layout file has three tab-separated columns:
+total ranks, PBS host, and ranks on that host.
 EOF
 }
 
@@ -43,9 +44,9 @@ done
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 mpi_dir="$(pwd -P)"
-layouts="${layouts:-$mpi_dir/scripts/vanda_gold_layouts.tsv}"
+layouts="${layouts:-$mpi_dir/scripts/vanda_platinum_layouts.tsv}"
 if [[ ! -r "$layouts" ]]; then
-    printf 'Cannot read Gold layouts: %s\n' "$layouts" >&2
+    printf 'Cannot read layouts: %s\n' "$layouts" >&2
     exit 2
 fi
 
@@ -96,7 +97,7 @@ for ranks in "${requested[@]}"; do
         }
         END {exit (bad || total != ranks)}
     ' "$layouts")"; then
-        printf 'Invalid or missing Gold layout for %s ranks in %s\n' "$ranks" "$layouts" >&2
+        printf 'Invalid or missing layout for %s ranks in %s\n' "$ranks" "$layouts" >&2
         exit 2
     fi
     chunks=()
@@ -142,7 +143,7 @@ for i in "${!requested[@]}"; do
     layout="$relative_dir/p$ranks.layout.tsv"
     printf '%s\n' "${selected_layouts[i]}" > "$layout"
     qsub_args=(-q "${queues[i]}" -l "select=${select_specs[i]}" -l place=scatter
-               -v "MPI_RANKS=$ranks,MPI_GOLD_LAYOUT=$layout,MPI_VALIDATE_ONLY=$validate_only"
+               -v "MPI_RANKS=$ranks,MPI_LAYOUT=$layout,MPI_VALIDATE_ONLY=$validate_only"
                -N "dsa5208_mpi_p$ranks" -o "$submit_dir/p$ranks.log")
     if [[ "${queues[i]}" == auto ]]; then
         qsub_args+=(-P "$project" -l walltime=01:00:00)

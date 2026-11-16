@@ -20,15 +20,13 @@ and [NVIDIA CUB](https://nvidia.github.io/cccl/unstable/cub/index.html).
 
 ## Run on Vanda
 
-Use the `cuda-experiments` branch with the `cuda/`, `mpi/` and `serial/`
-directories from this repository. The build requires a C++17 compiler,
+Use the `cuda/`, `mpi/` and `serial/` directories from this repository. The build requires a C++17 compiler,
 CUDA and Open MPI. The Python scripts require Python 3.8 or newer.
 Matplotlib is needed for figures.
 
-From the repository root on Vanda, select the branch and submit a job:
+From the repository root on Vanda, submit a job:
 
 ~~~bash
-git switch cuda-experiments
 bash cuda/scripts/submit_vanda.sh 2
 ~~~
 
