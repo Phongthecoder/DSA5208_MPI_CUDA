@@ -60,7 +60,6 @@ def draw(rows, output):
         axis.grid(axis="y", alpha=0.25)
         axis.set_axisbelow(True)
     fig.savefig(output / "single_gpu_particle_sweep.png", dpi=200, facecolor="white")
-    fig.savefig(output / "single_gpu_particle_sweep.pdf", facecolor="white")
     plt.close(fig)
 
 

@@ -70,13 +70,11 @@ The host is shared, although the allocated GPU is dedicated to this job.
 
 - [Raw runs](gpu_sweep_runs.csv), [warm-ups](warmup_runs.csv), and
   [summary](gpu_sweep_summary.csv).
-- [Figure PNG](single_gpu_particle_sweep.png) and
-  [figure PDF](single_gpu_particle_sweep.pdf).
+- [Figure](single_gpu_particle_sweep.png).
 - [PBS allocation](pbs_job.tsv), [job output](pbs.log),
   [actual launcher flags](launcher_flags.txt), [experiment settings](experiment.json),
   and [source fingerprints](source_sha256.txt).
-- [Complete source archive](reproduce/source_snapshot.tar.gz) and
-  [source commit](source_commit.txt).
+- [Source commit](source_commit.txt).
 
 From the repository root:
 

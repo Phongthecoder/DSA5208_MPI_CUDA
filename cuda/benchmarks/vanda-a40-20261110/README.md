@@ -39,7 +39,7 @@ the CDF calculation reproducible.
 - [Raw measurements](gpu_runs.csv), [timing summary](gpu_summary.csv) and
   [scaling figure](cuda_scaling.png).
 - [CPU comparison](cpu_gpu_comparison.csv), using the published
-  [Xeon Gold CPU MPI measurements](../../../mpi/benchmarks/vanda-gold-5-repeats/).
+  [Xeon Platinum CPU MPI measurements](../../../mpi/benchmarks/vanda-platinum-5-repeats/).
 - [One-GPU validation](validation_p1_staged.txt),
   [two-GPU staged validation](validation_p2_staged.txt) and
   [two-GPU device-buffer validation](validation_p2_device.txt).
@@ -57,9 +57,9 @@ submission script expresses the same policy explicitly.
 
 ## CPU comparison and scope
 
-The same 4,194,304-particle workload took 1.722 s on 128 Xeon Gold 6438N
+The same 4,194,304-particle workload took 1.907 s on 128 Xeon Platinum 8452Y
 CPU MPI ranks and 0.755 s on two A40s with device-buffer exchange, giving
-a CPU/GPU time ratio of 2.28. The comparison matches the workload, seeds,
+a CPU/GPU time ratio of 2.52. The comparison matches the workload, seeds,
 ESS threshold and filter timing scope. Hardware and process counts differ.
 GPU scaling in this archive covers one to two GPUs within one node.
 

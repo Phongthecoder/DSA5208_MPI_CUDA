@@ -59,7 +59,7 @@ def summarize(raw, repeats):
     return results
 
 
-def compare_cpu(cpu_rows, gpu_rows):
+def compare_cpu(cpu_rows, gpu_rows, cpu_model):
     pairs = []
     for gpu in gpu_rows:
         if gpu["suite"] != "strong":
@@ -68,7 +68,7 @@ def compare_cpu(cpu_rows, gpu_rows):
             if (cpu["suite"] == "strong" and cpu["resampler"] == "distributed"
                     and int(cpu["ranks"]) in (gpu["gpus"], 128)
                     and all(cpu[k] == gpu[k] for k in WORKLOAD)):
-                pairs.append({"cpu_ranks": cpu["ranks"], "cpu_model": "Intel Xeon Gold 6438N",
+                pairs.append({"cpu_ranks": cpu["ranks"], "cpu_model": cpu_model,
                               "gpus": gpu["gpus"], "gpu_model": gpu["gpu"], "transport": gpu["transport"],
                               "particles": gpu["particles"], "steps": gpu["steps"],
                               "cpu_filter_ms": cpu["filter_ms"], "gpu_filter_ms": gpu["filter_ms"],
@@ -111,6 +111,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("gpu_runs", type=Path)
     parser.add_argument("--cpu-summary", type=Path)
+    parser.add_argument("--cpu-model", default="Intel Xeon Platinum 8452Y")
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--repeats", type=int, default=5)
     parser.add_argument("--plot", action="store_true")
@@ -126,7 +127,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     write_csv(args.output / "gpu_summary.csv", rows)
     if args.cpu_summary:
-        pairs = compare_cpu(read_csv(args.cpu_summary), rows)
+        pairs = compare_cpu(read_csv(args.cpu_summary), rows, args.cpu_model)
         if not pairs:
             parser.error("no CPU reference matches the CUDA strong-scaling workload")
         write_csv(args.output / "cpu_gpu_comparison.csv", pairs)

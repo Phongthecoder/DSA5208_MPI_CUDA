@@ -46,17 +46,12 @@ $$W^i_{t+1} \leftarrow p(Y_{t+1} | X_{t+1}^i) W^{i}_{t}$$
 4. Then in the final step, we just need to normalise these weights (divide by the sum of all the weights).
 
 
-Right. These are the only two steps where ranks have to communicate, and they differ a lot in difficulty:
+### Where ranks communicate
 
-Renormalise: simple. Each rank sums its own weights, and one MPI_Allreduce gives every rank the global total. It’s one number per time step and costs almost nothing.
+When the particles are split across MPI ranks, propagation and weighting stay local to each rank. Only normalisation and resampling need information from every rank:
 
-Resample: the advanced part.
-
-MPI_Exscan gives each rank its offset in the global cumulative sum of weights.
-
-MPI_Bcast shares the single random $u$.
-
-MPI_Alltoallv moves resampled particles between ranks, because the copies of a heavy particle may belong on other ranks. This is the irregular, expensive communication, and it is the core of your scaling analysis.
+- **Normalisation and ESS:** two small `MPI_Allreduce` calls per time step give every rank the global maximum log weight and the global weight sums, so every rank computes the same ESS and makes the same resampling decision.
+- **Resampling:** `MPI_Allgather` shares each rank's total weight, so every rank knows where its part of the global cumulative sum starts. The random offset $u$ is generated identically on every rank from a shared seed, so it is not broadcast. `MPI_Alltoall` exchanges how many particles each rank sends to each other rank, and `MPI_Alltoallv` moves the resampled particles, because the copies of a heavy particle may belong on other ranks. This irregular exchange is the most expensive communication and the focus of the scaling analysis.
 
 ## The parallel algorithm
 
@@ -69,7 +64,7 @@ $$\underbrace{N \text{ particles}}_{\text{total}} \;\xrightarrow{\text{MPI}}\; \
 - **MPI** distributes the particles across $p$ ranks. Rank $r$ owns the global particle indices $[\,r N_{\text{loc}},\ (r+1) N_{\text{loc}})$.
 - **CUDA** does all per-particle work inside each rank, with one GPU per rank and one thread per particle.
 - Ranks communicate only when global information is needed: **normalising the weights**, **computing the ESS**, and **resampling**.
-- We use **CUDA-aware MPI**, so MPI calls take GPU pointers directly and no host copies are needed.
+- With **CUDA-aware MPI** (the device path), MPI calls take GPU pointers directly. The staged path copies particles through pinned host buffers instead and works with any MPI.
 
 ### Parameters
 
@@ -109,13 +104,13 @@ This is for numerical stability (log-sum-exp trick).
 
 **Step 3: Normalise the weights and compute the ESS (CUDA + MPI)**
 
-- CUDA: each thread computes $\hat w^{(i)} = e^{\ell^{(i)} - m}$, and a block reduction gives two local sums:
-$$S_1^{\text{loc}} = \sum_{i \in \text{rank}} \hat w^{(i)}, \qquad S_2^{\text{loc}} = \sum_{i \in \text{rank}} \big(\hat w^{(i)}\big)^2$$
-- MPI: **one** `MPI_Allreduce` with `count = 2` and `MPI_SUM` gives the global sums $S_1, S_2$ on every rank.
+- CUDA: each thread computes $\hat w^{(i)} = e^{\ell^{(i)} - m}$, and a block reduction gives the local sums
+$$S_1^{\text{loc}} = \sum_{i \in \text{rank}} \hat w^{(i)}, \qquad S_2^{\text{loc}} = \sum_{i \in \text{rank}} \big(\hat w^{(i)}\big)^2, \qquad \mathbf{M}^{\text{loc}} = \sum_{i \in \text{rank}} \hat w^{(i)} x^{(i)}$$
+- MPI: **one** `MPI_Allreduce` with `count = 6` and `MPI_SUM` gives the global sums $S_1, S_2$ and the four components of $\mathbf{M}$ on every rank. The posterior mean is $\mathbf{M} / S_1$.
 - Then:
 $$w^{(i)} = \frac{\hat w^{(i)}}{S_1}, \qquad \text{ESS} = \frac{S_1^2}{S_2} = \frac{1}{\sum_i \big(w^{(i)}\big)^2}$$
 
-Packing both sums into one call halves the latency of this step. Every rank now holds the same ESS, so all ranks make the same resampling decision without further communication.
+Packing all six sums into one call keeps this step to a single collective. Every rank now holds the same ESS, so all ranks make the same resampling decision without further communication.
 
 Each `MPI_Allreduce` takes $O(\log_2 p)$ rounds with recursive doubling, and every rank ends with the result.
 
@@ -128,11 +123,11 @@ Each `MPI_Allreduce` takes $O(\log_2 p)$ rounds with recursive doubling, and eve
 
 *Idea:* the normalised weights sum to 1, so they cut $[0,1]$ into $N$ intervals, with particle $i$ owning an interval of length $w^{(i)}$. We place $N$ evenly spaced points $u_k = (k + u)/N$, $k = 0, \dots, N-1$, with a single $u \sim U[0,1)$. The number of points falling in particle $i$'s interval is its number of copies.
 
-*5a. Local cumulative sum (CUDA).* A prefix scan (Hillis–Steele within each block, followed by adding block offsets) gives the local cumulative weights $W_{\text{loc}}^{(i)}$, accumulated in `double` for precision.
+*5a. Local cumulative sum (CUDA).* A hierarchical CUB block scan, in a fixed order across launches, gives the local cumulative weights $W_{\text{loc}}^{(i)}$, accumulated in `double` for precision. The CPU MPI version uses a sequential loop.
 
-*5b. Global offset (MPI).* `MPI_Exscan(local_total, offset, MPI_SUM)` gives each rank the total weight of all earlier ranks (rank 0 sets offset $= 0$). Each thread then has its global cumulative weight:
+*5b. Global offset (MPI).* `MPI_Allgather(local_total)` gives every rank the total weight of every rank. Each rank adds up the totals of the ranks before it to get its offset (rank 0 has offset $0$), and each thread then has its global cumulative weight:
 $$W^{(i)} = \text{offset} + W_{\text{loc}}^{(i)}$$
-Only one number per rank is communicated.
+One number per rank is communicated. Because every rank sees all $p$ totals, all ranks build the same boundaries in rank order, which keeps the result correct when some ranks hold zero total weight.
 
 *5c. Shared random number.* All ranks need the same $u$. Instead of `MPI_Bcast`, every rank generates $u$ from the same seed and time step, which needs no communication.
 
@@ -144,7 +139,7 @@ Particle $i$ has $o^{(i)}$ copies, which go to the output slots $[\text{lo}_i, \
 
 *5f. Pack (CUDA).* Each thread writes its $o^{(i)}$ copies into the send buffer at positions $[\text{lo}_i - \text{lo}_{\text{first}},\ \text{hi}_i - \text{lo}_{\text{first}})$. The buffer comes out already grouped by destination rank, so no sorting is needed.
 
-*5g. Exchange (MPI).* `MPI_Alltoallv` on GPU buffers (CUDA-aware MPI) sends each group to its destination rank. Copies that stay on the same rank are copied directly on the GPU. The received particles become the particle array for the next time step (swap the buffers).
+*5g. Exchange (MPI).* `MPI_Alltoallv` sends each group, directly from GPU buffers on the device path or through pinned host buffers on the staged path, to its destination rank. Copies that stay on the same rank are copied directly on the GPU. The received particles become the particle array for the next time step (swap the buffers).
 
 **Example** ($N = 8$, $p = 2$, $N_{\text{loc}} = 4$): rank 0 owns new slots 0–3 and rank 1 owns slots 4–7.
 
@@ -166,8 +161,8 @@ After the exchange: rank 0 holds {B, B, B, C} and rank 1 holds {C, D, F, H}, so 
 | Step | MPI call | Volume | Cost |
 |---|---|---|---|
 | Max of log-weights | `MPI_Allreduce` (`MPI_MAX`) | 1 double | latency-bound, $O(\log p)$ |
-| Weight sum + ESS | `MPI_Allreduce` (`MPI_SUM`, count 2) | 2 doubles | latency-bound, $O(\log p)$ |
-| Scan offset (if resampling) | `MPI_Exscan` | 1 double | latency-bound, $O(\log p)$ |
+| Weight sums, ESS and mean | `MPI_Allreduce` (`MPI_SUM`, count 6) | 6 doubles | latency-bound, $O(\log p)$ |
+| Rank weight totals (if resampling) | `MPI_Allgather` | $p$ doubles | latency-bound |
 | Receive counts (if resampling) | `MPI_Alltoall` | $p$ integers | small |
 | Particle redistribution (if resampling) | `MPI_Alltoallv` | depends on the data, up to $O(N_{\text{loc}} \cdot d)$ per rank | **dominant**, bandwidth-bound |
 

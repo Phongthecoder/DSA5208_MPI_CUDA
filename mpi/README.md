@@ -81,10 +81,7 @@ each at 64, and the same eight hosts with 16 and 32 ranks each at 128 and
 256. The layouts pin named hosts, so PBS queues a job until those hosts are
 free; edit the layout file to use other hosts. Before choosing a host, check
 `pbsnodes -v "cn-XXX[0]"` for the comment "Unable to clean up one or more
-cgroups", which makes every job on that host fail to start. The
-[Gold layouts](scripts/vanda_gold_layouts.tsv) reproduce the earlier
-Xeon Gold 6438N runs; pass them with `--layouts` and change `expected_cpu`
-in `scripts/vanda_mpi.pbs`.
+cgroups", which makes every job on that host fail to start.
 
 Use `--dry-run` to print the allocation without contacting PBS. To choose a
 different set of hosts, pass `--layouts FILE`; the file contains total
@@ -150,7 +147,7 @@ The following commands run the same experiment design on one host with up
 to eight ranks. The strong and ESS workloads are reduced for the local test.
 On macOS with MPICH over libfabric, set `FI_TCP_IFACE=lo0 HYDRA_IFACE=lo0`
 in the local environment to keep the one-host runs on loopback during VPN
-interface changes.
+interface changes. Results are written to `results/local/`.
 
 ```sh
 python3 scripts/benchmark_mpi.py --binary build/mpi_pf \
@@ -161,42 +158,16 @@ python3 scripts/summarize_mpi.py results/local/mpi_runs.csv \
   --plot-title "Local CPU MPI benchmark"
 ```
 
-The [local results](benchmarks/local/) are from one Apple M5 Mac with 10 CPU
-cores, 32 GiB of memory, Apple Clang 17, and MPICH 4.3.2. Ranks were not pinned.
-Times below are medians of three measurements at 256 steps. The weak workload
-uses 16,384 particles per rank.
-
-| MPI ranks | Strong: distributed (s) | Strong: centralized (s) | Strong speedup: distributed | Weak: distributed (s) | Weak efficiency |
-| ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 | 12.613 | shared baseline | 1.00× | 0.203 | 100.0% |
-| 2 | 6.846 | 7.304 | 1.84× | 0.208 | 97.7% |
-| 4 | 4.237 | 5.033 | 2.98× | 0.278 | 73.0% |
-| 8 | 3.368 | 4.364 | 3.74× | 0.444 | 45.7% |
-
-At eight ranks, strong efficiency was 46.8% with distributed resampling.
-The highest share of rank time spent inside MPI calls was 20.9% for that run
-configuration and 44.5% for the centralized equivalent (medians).
-In the isolated resampling test, distributed resampling took 0.670 ms with
-uniform weights and 1.088 ms with skewed weights. Skew raised its logical
-off-rank payload from zero to 6.90 MiB per resample and the busiest rank packed
-7.29 times the average number of particles. The centralized sampler took
-2.182 ms and 2.224 ms, respectively, with 15.75 MiB of payload in both cases.
-
-On the fixed observation sequence in the eight-rank ESS test, threshold 0.5
-resampled on 79 of 256 steps and took 0.881 s with a position RMSE of 8.376 m.
-Resampling every step took 1.008 s with an RMSE of 8.351 m. The threshold
-reduced runtime by 12.6% on this workload; the RMSE difference is descriptive for
-this sequence. The [validation log](benchmarks/local/validation.txt) shows
-that the methods agree on the deterministic tests and that the MPI filter
-approaches the Kalman reference as the particle count increases.
-
 The [Vanda Platinum results](benchmarks/vanda-platinum-5-repeats/) are the
 ones used in the report. They cover 1 to 256 MPI ranks on Xeon Platinum 8452Y
 nodes, with five measurements per setting and validation on every allocation;
-`jobs.csv` lists the nine jobs and `figures/` holds the report figures. The
-earlier [Vanda Gold results](benchmarks/vanda-gold-5-repeats/) cover 1 to 128
-ranks on Xeon Gold 6438N nodes and a
-[separate 256-rank follow-up](benchmarks/vanda-gold-5-repeats/256-ranks/).
+`jobs.csv` lists the nine jobs, `jobs/<job_id>/` holds each job's raw output,
+and `figures/` holds the report figures. Rebuild the figures from the
+repository root with
+
+```sh
+python3 mpi/scripts/plot_report_figures.py mpi/benchmarks/vanda-platinum-5-repeats
+```
 
 ## AI use
 

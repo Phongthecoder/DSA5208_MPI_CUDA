@@ -139,5 +139,4 @@ README gives the exact command.
 
 Unless a README says otherwise, timings use 256 range-bearing steps, data
 seed 42, filter seed 1729, an ESS threshold of 0.5 and the median of five
-runs. `mpi/benchmarks/vanda-gold-5-repeats/` holds earlier CPU MPI results
-on Xeon Gold 6438N nodes.
+runs.

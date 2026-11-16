@@ -67,13 +67,13 @@ Use the timing CSV from a single job to calculate speedup and efficiency:
 job_id=YOUR_JOB_ID
 run="cuda/results/$job_id"
 python3 cuda/scripts/summarize.py "$run/gpu_runs.csv" \
-  --cpu-summary mpi/benchmarks/vanda-gold-5-repeats/mpi_summary.csv \
+  --cpu-summary mpi/benchmarks/vanda-platinum-5-repeats/mpi_summary.csv \
   --output "$run" --plot
 ~~~
 
 Replace `YOUR_JOB_ID` with the job ID. The CPU comparison matches particle
 count, step count, seeds, ESS threshold and filter timing scope. The CPU
-data was collected on Xeon Gold 6438N nodes. It is a comparison of measured
+data was collected on Xeon Platinum 8452Y nodes. It is a comparison of measured
 configurations on different hardware.
 
 ## Single-GPU particle-count sweep
@@ -163,7 +163,7 @@ one-GPU measurements in that same allocation.
 | 2 GPUs, device buffers | 0.755 | 93.4% | 0.396 | 92.4% |
 
 Device-buffer exchange gave 1.87 times strong-scaling speedup over one GPU.
-The matching 128-rank Gold CPU MPI workload took 1.722 s, compared with
+The matching 128-rank Platinum CPU MPI workload took 1.907 s, compared with
 0.755 s on the two A40s using device buffers. The measurements cover
 one-node GPU scaling.
 
@@ -175,7 +175,7 @@ summaries and figure from the repository root with
 ~~~bash
 bench=cuda/benchmarks/vanda-a40-20261110
 python3 cuda/scripts/summarize.py "$bench/gpu_runs.csv" \
-  --cpu-summary mpi/benchmarks/vanda-gold-5-repeats/mpi_summary.csv \
+  --cpu-summary mpi/benchmarks/vanda-platinum-5-repeats/mpi_summary.csv \
   --output cuda/results/rebuilt-a40 --plot
 ~~~
 
