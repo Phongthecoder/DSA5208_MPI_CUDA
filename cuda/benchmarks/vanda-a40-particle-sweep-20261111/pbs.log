@@ -1,0 +1,47 @@
+Loading nvhpc-hpcx-2.20-cuda12/26.1
+  Loading requirement: hpcx
+make: Entering directory '/nfs/home/svu/e1554221/dsa5208-project3-platinum-a40-20261111T091010Z.J2MiUJJL/cuda'
+mkdir -p build/hpcx-1541447.stdct-mgmt-02
+mpicxx -DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX -I../mpi/src -I../serial/src -Isrc -O3 -Wall -Wextra -Wpedantic -std=c++17 -c src/main.cpp -o build/hpcx-1541447.stdct-mgmt-02/main.o
+nvcc -DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX -I../mpi/src -I../serial/src -Isrc -I/app1/admin/shared/apps/nvhpc/26.1/Linux_x86_64/26.1/comm_libs/12.9/hpcx/hpcx-2.20/ompi/include -I/app1/admin/shared/apps/nvhpc/26.1/Linux_x86_64/26.1/comm_libs/12.9/hpcx/hpcx-2.20/ompi/include/openmpi -I/app1/admin/shared/apps/nvhpc/26.1/Linux_x86_64/26.1/comm_libs/12.9/hpcx/hpcx-2.20/ompi/include/openmpi/opal/mca/hwloc/hwloc201/hwloc/include -I/app1/admin/shared/apps/nvhpc/26.1/Linux_x86_64/26.1/comm_libs/12.9/hpcx/hpcx-2.20/ompi/include/openmpi/opal/mca/event/libevent2022/libevent -I/app1/admin/shared/apps/nvhpc/26.1/Linux_x86_64/26.1/comm_libs/12.9/hpcx/hpcx-2.20/ompi/include/openmpi/opal/mca/event/libevent2022/libevent/include -Xcompiler=-pthread -O3 --fmad=false -arch=sm_86 -std=c++17 -c src/cuda_filter.cu -o build/hpcx-1541447.stdct-mgmt-02/cuda_filter.o
+mpicxx -DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX -I../mpi/src -I../serial/src -Isrc -O3 -Wall -Wextra -Wpedantic -std=c++17 -c ../mpi/src/mpi_filter.cpp -o build/hpcx-1541447.stdct-mgmt-02/mpi_filter.o
+mpicxx -DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX -I../mpi/src -I../serial/src -Isrc -O3 -Wall -Wextra -Wpedantic -std=c++17 -c ../serial/src/particle_filter.cpp -o build/hpcx-1541447.stdct-mgmt-02/serial_filter.o
+mpicxx  build/hpcx-1541447.stdct-mgmt-02/main.o build/hpcx-1541447.stdct-mgmt-02/cuda_filter.o build/hpcx-1541447.stdct-mgmt-02/mpi_filter.o build/hpcx-1541447.stdct-mgmt-02/serial_filter.o -L"/cm/shared/apps/cuda12.4/toolkit/12.4.1/lib64" -Wl,-rpath,"/cm/shared/apps/cuda12.4/toolkit/12.4.1/lib64" -lcudart  -o build/hpcx-1541447.stdct-mgmt-02/cuda_pf
+make: Leaving directory '/nfs/home/svu/e1554221/dsa5208-project3-platinum-a40-20261111T091010Z.J2MiUJJL/cuda'
+Validation passed for 1 GPU rank(s), staged transport
+GPU sweep N=2^10 (1024) run 1/5: 18.9111 ms; resampled 73/256
+GPU sweep N=2^10 (1024) run 2/5: 18.8541 ms; resampled 73/256
+GPU sweep N=2^10 (1024) run 3/5: 18.8957 ms; resampled 73/256
+GPU sweep N=2^10 (1024) run 4/5: 18.8357 ms; resampled 73/256
+GPU sweep N=2^10 (1024) run 5/5: 18.9953 ms; resampled 73/256
+GPU sweep N=2^12 (4096) run 1/5: 19.0300 ms; resampled 73/256
+GPU sweep N=2^12 (4096) run 2/5: 19.0767 ms; resampled 73/256
+GPU sweep N=2^12 (4096) run 3/5: 19.0197 ms; resampled 73/256
+GPU sweep N=2^12 (4096) run 4/5: 19.1003 ms; resampled 73/256
+GPU sweep N=2^12 (4096) run 5/5: 19.0023 ms; resampled 73/256
+GPU sweep N=2^14 (16384) run 1/5: 19.3144 ms; resampled 74/256
+GPU sweep N=2^14 (16384) run 2/5: 19.3005 ms; resampled 74/256
+GPU sweep N=2^14 (16384) run 3/5: 19.2974 ms; resampled 74/256
+GPU sweep N=2^14 (16384) run 4/5: 19.4684 ms; resampled 74/256
+GPU sweep N=2^14 (16384) run 5/5: 19.3839 ms; resampled 74/256
+GPU sweep N=2^16 (65536) run 1/5: 39.2601 ms; resampled 74/256
+GPU sweep N=2^16 (65536) run 2/5: 39.1516 ms; resampled 74/256
+GPU sweep N=2^16 (65536) run 3/5: 39.2538 ms; resampled 74/256
+GPU sweep N=2^16 (65536) run 4/5: 39.2730 ms; resampled 74/256
+GPU sweep N=2^16 (65536) run 5/5: 39.3866 ms; resampled 74/256
+GPU sweep N=2^18 (262144) run 1/5: 104.1205 ms; resampled 74/256
+GPU sweep N=2^18 (262144) run 2/5: 104.1248 ms; resampled 74/256
+GPU sweep N=2^18 (262144) run 3/5: 104.1150 ms; resampled 74/256
+GPU sweep N=2^18 (262144) run 4/5: 104.0499 ms; resampled 74/256
+GPU sweep N=2^18 (262144) run 5/5: 104.1853 ms; resampled 74/256
+GPU sweep N=2^20 (1048576) run 1/5: 360.7965 ms; resampled 75/256
+GPU sweep N=2^20 (1048576) run 2/5: 360.5104 ms; resampled 75/256
+GPU sweep N=2^20 (1048576) run 3/5: 360.6099 ms; resampled 75/256
+GPU sweep N=2^20 (1048576) run 4/5: 360.7225 ms; resampled 75/256
+GPU sweep N=2^20 (1048576) run 5/5: 360.6320 ms; resampled 75/256
+GPU sweep N=2^22 (4194304) run 1/5: 1405.6316 ms; resampled 76/256
+GPU sweep N=2^22 (4194304) run 2/5: 1405.5220 ms; resampled 76/256
+GPU sweep N=2^22 (4194304) run 3/5: 1405.9148 ms; resampled 76/256
+GPU sweep N=2^22 (4194304) run 4/5: 1406.0288 ms; resampled 76/256
+GPU sweep N=2^22 (4194304) run 5/5: 1407.6765 ms; resampled 76/256
+PASS: single-GPU particle sweep completed with reproducible fixed-seed outputs.

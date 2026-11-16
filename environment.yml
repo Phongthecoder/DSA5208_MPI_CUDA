@@ -1,0 +1,17 @@
+# Toolchain for building and running the serial and CPU MPI filters on a
+# workstation, and for the Python benchmark and plotting scripts everywhere.
+#   conda env create -f environment.yml
+#   conda activate dsa5208-pf
+# On Vanda, load the cluster modules instead for compilers, MPI and CUDA
+# (see README.md) and use this environment only for Python and Matplotlib.
+# The CUDA build needs the CUDA 12 toolkit and an NVIDIA GPU, which this
+# file does not install.
+name: dsa5208-pf
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - matplotlib=3.9
+  - make
+  - cxx-compiler
+  - openmpi=4.1

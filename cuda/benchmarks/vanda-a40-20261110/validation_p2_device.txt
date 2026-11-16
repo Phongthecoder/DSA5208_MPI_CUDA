@@ -1,0 +1,5 @@
+linear ESS=0.5 max_state_delta=5.68434e-13 max_ESS_delta=2.00089e-11 log_likelihood_delta=5.68434e-14
+linear ESS=always max_state_delta=5.96856e-13 max_ESS_delta=1.40972e-11 log_likelihood_delta=5.68434e-14
+range-bearing ESS=0.5 max_state_delta=7.38964e-13 max_ESS_delta=2.27374e-11 log_likelihood_delta=1.42109e-14
+range-bearing ESS=always max_state_delta=7.10543e-13 max_ESS_delta=2.27374e-11 log_likelihood_delta=2.84217e-14
+PASS exact systematic ancestry, zero-mass and empty ranks, and CPU MPI agreement on 2 GPU ranks

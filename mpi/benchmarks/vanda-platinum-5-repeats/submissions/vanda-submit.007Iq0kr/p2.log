@@ -1,0 +1,125 @@
+mkdir -p build/1542991.stdct-mgmt-02
+mpicxx -DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX -I../serial/src -Isrc -O3 -Wall -Wextra -Wpedantic -std=c++17 -c src/mpi_filter.cpp -o build/1542991.stdct-mgmt-02/mpi_filter.o
+mpicxx -DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX -I../serial/src -Isrc -O3 -Wall -Wextra -Wpedantic -std=c++17 -c ../serial/src/particle_filter.cpp -o build/1542991.stdct-mgmt-02/serial_filter.o
+mpicxx -DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX -I../serial/src -Isrc -O3 -Wall -Wextra -Wpedantic -std=c++17  src/main.cpp build/1542991.stdct-mgmt-02/mpi_filter.o build/1542991.stdct-mgmt-02/serial_filter.o  -o build/1542991.stdct-mgmt-02/mpi_pf
+mpicxx -DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX -I../serial/src -Isrc -O3 -Wall -Wextra -Wpedantic -std=c++17  src/resampling_bench.cpp build/1542991.stdct-mgmt-02/mpi_filter.o build/1542991.stdct-mgmt-02/serial_filter.o  -o build/1542991.stdct-mgmt-02/resampling_bench
+mpicxx -DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX -I../serial/src -Isrc -O3 -Wall -Wextra -Wpedantic -std=c++17  tests/validate_mpi.cpp build/1542991.stdct-mgmt-02/mpi_filter.o build/1542991.stdct-mgmt-02/serial_filter.o  -o build/1542991.stdct-mgmt-02/validate_mpi
+set -e; for ranks in 2; do mpiexec --map-by slot --bind-to core -n $ranks build/1542991.stdct-mgmt-02/validate_mpi; done
+[CN-006:2732110] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2732109] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=2.521680 m, velocity RMSE=0.389389 m/s, standardized covariance RMSE=0.196151, log-likelihood error/step=0.024105
+Kalman comparison N=65536 position RMSE=0.296522 m, velocity RMSE=0.048683 m/s, standardized covariance RMSE=0.031476, log-likelihood error/step=0.001637
+Range-bearing position RMSE over six tracks: MPI=7.873052 m, serial=7.754915 m, observations=22.111531 m
+All MPI checks passed on 2 ranks.
+[CN-006:2732174] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2732173] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2735276] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2735281] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+strong P=  2 N= 4194304 distributed ESS=   0.5 run 1/5:  74727.04 ms
+[CN-006:2757125] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2757124] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+strong P=  2 N= 4194304 distributed ESS=   0.5 run 2/5:  74486.79 ms
+[CN-006:2757258] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2757257] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+strong P=  2 N= 4194304 distributed ESS=   0.5 run 3/5:  74595.81 ms
+[CN-006:2757445] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2757446] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+strong P=  2 N= 4194304 distributed ESS=   0.5 run 4/5:  74700.42 ms
+[CN-006:2782320] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2782321] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+strong P=  2 N= 4194304 distributed ESS=   0.5 run 5/5:  74735.76 ms
+[CN-006:2782454] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2782455] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2782518] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2782517] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+weak   P=  2 N=   32768 distributed ESS=   0.5 run 1/5:    583.95 ms
+[CN-006:2782580] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2782579] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+weak   P=  2 N=   32768 distributed ESS=   0.5 run 2/5:    583.78 ms
+[CN-006:2782642] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2782641] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+weak   P=  2 N=   32768 distributed ESS=   0.5 run 3/5:    583.89 ms
+[CN-006:2782704] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2782703] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+weak   P=  2 N=   32768 distributed ESS=   0.5 run 4/5:    583.75 ms
+[CN-006:2782765] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2782766] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+weak   P=  2 N=   32768 distributed ESS=   0.5 run 5/5:    584.35 ms
+[CN-006:2782828] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2782829] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2782892] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2782891] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+strong P=  2 N= 4194304 centralized ESS=   0.5 run 1/5:  79884.34 ms
+[CN-006:2783031] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2783030] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+strong P=  2 N= 4194304 centralized ESS=   0.5 run 2/5:  79730.47 ms
+[CN-006:2807906] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2807907] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+strong P=  2 N= 4194304 centralized ESS=   0.5 run 3/5:  79918.10 ms
+[CN-006:2808043] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2808042] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+strong P=  2 N= 4194304 centralized ESS=   0.5 run 4/5:  79877.26 ms
+[CN-006:2808180] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2808179] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+strong P=  2 N= 4194304 centralized ESS=   0.5 run 5/5:  79971.51 ms
+[CN-006:2833909] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2833910] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 uniform centralized run 1/5:     15.14 ms
+[CN-006:2833971] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2833972] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 uniform centralized run 2/5:     15.06 ms
+[CN-006:2834034] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834033] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 uniform centralized run 3/5:     15.14 ms
+[CN-006:2834095] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834096] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 uniform centralized run 4/5:     15.31 ms
+[CN-006:2834157] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834158] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 uniform centralized run 5/5:     15.29 ms
+[CN-006:2834220] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834221] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 uniform distributed run 1/5:      3.76 ms
+[CN-006:2834284] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834283] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 uniform distributed run 2/5:      3.74 ms
+[CN-006:2834345] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834346] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 uniform distributed run 3/5:      4.39 ms
+[CN-006:2834408] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834407] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 uniform distributed run 4/5:      4.38 ms
+[CN-006:2834523] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834522] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 uniform distributed run 5/5:      4.32 ms
+[CN-006:2834585] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834584] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 skewed  centralized run 1/5:     18.46 ms
+[CN-006:2834646] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834647] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 skewed  centralized run 2/5:     18.42 ms
+[CN-006:2834708] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834709] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 skewed  centralized run 3/5:     18.38 ms
+[CN-006:2834772] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834771] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 skewed  centralized run 4/5:     18.32 ms
+[CN-006:2834884] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834883] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 skewed  centralized run 5/5:     18.40 ms
+[CN-006:2834948] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2834947] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 skewed  distributed run 1/5:      8.02 ms
+[CN-006:2835010] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2835009] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 skewed  distributed run 2/5:      8.10 ms
+[CN-006:2835071] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2835072] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 skewed  distributed run 3/5:      8.03 ms
+[CN-006:2835134] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2835133] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 skewed  distributed run 4/5:      7.97 ms
+[CN-006:2835197] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+[CN-006:2835196] mca_base_component_repository_open: unable to open mca_osc_ucx: libucp.so.0: cannot open shared object file: No such file or directory (ignored)
+resampling P=  2 skewed  distributed run 5/5:      8.03 ms

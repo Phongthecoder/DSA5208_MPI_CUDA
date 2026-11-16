@@ -1,0 +1,10 @@
+ranks,nodes,job_id,hosts,queue
+1,1,1542990.stdct-mgmt-02,cn-151,auto
+2,1,1542991.stdct-mgmt-02,cn-006,auto
+4,1,1542992.stdct-mgmt-02,cn-152,auto
+8,1,1542993.stdct-mgmt-02,cn-140,auto
+16,1,1542994.stdct-mgmt-02,cn-122,auto
+32,1,1542995.stdct-mgmt-02,cn-121,auto
+64,4,1542996.stdct-mgmt-02,cn-083+cn-069+cn-066+cn-147,auto
+128,8,1542997.stdct-mgmt-02,cn-146+cn-142+cn-129+cn-120+cn-119+cn-118+cn-100+cn-005,auto
+256,8,1542998.stdct-mgmt-02,cn-146+cn-142+cn-129+cn-120+cn-119+cn-118+cn-100+cn-005,auto

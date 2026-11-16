@@ -1,0 +1,43 @@
+Tue Nov 10 03:40:07 PM UTC 2026
+PBS job 1537080.stdct-mgmt-02, MPI stack hpcx
+Launcher flags --host gn-a40-004.stdct.loc:2 --map-by slot --bind-to core --mca pml ucx --mca coll_hcoll_enable 0
+UCX_TLS=self,sm,cuda_copy,cuda_ipc
+      2 gn-a40-004.stdct.loc
+name, driver_version, memory.total [MiB], pci.bus_id
+NVIDIA A40, 575.57.08, 46068 MiB, 00000000:0A:00.0
+NVIDIA A40, 575.57.08, 46068 MiB, 00000000:AD:00.0
+	[4mGPU0	GPU1	CPU Affinity	NUMA Affinity	GPU NUMA ID[0m
+GPU0	 X 	NODE	0,2,4,6	0		N/A
+GPU1	NODE	 X 		1		N/A
+
+Legend:
+
+  X    = Self
+  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)
+  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node
+  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)
+  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)
+  PIX  = Connection traversing at most a single PCIe bridge
+  NV#  = Connection traversing a bonded set of # NVLinks
+Architecture:                         x86_64
+Model name:                           Intel(R) Xeon(R) Platinum 8452Y
+Core(s) per socket:                   36
+Socket(s):                            2
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2024 NVIDIA Corporation
+Built on Thu_Mar_28_02:18:24_PDT_2024
+Cuda compilation tools, release 12.4, V12.4.131
+Build cuda_12.4.r12.4/compiler.34097967_0
+/app1/admin/shared/apps/nvhpc/26.1/Linux_x86_64/26.1/comm_libs/12.9/hpcx/hpcx-2.20/ompi/bin/.bin/mpicxx: Open MPI 4.1.7a1 (Language: C++)
+g++ (GCC) 11.5.0 20240719 (Red Hat 11.5.0-5)
+bcb6e691e1d8ec2b59200a3fa7953bba47e6e2890a8d87f4815603f6eefe08c0  cuda/Makefile
+7e9d9e3313fa6a05cae2894c5fa052faa55d2dca8efb9b682060018578aab471  cuda/src/cuda_filter.cu
+d8236f658eadc6dc952174647a5df18e550c6ba3e54f77c47ddae0aeaec7feac  cuda/src/cuda_filter.hpp
+60148f76f03d492b0ea83c23f53e196a0272568bc6a21cf3e78ecaf6b9affd6b  cuda/src/main.cpp
+07edb3badbd4731b12d6b25d0b31e9f9b486fc8c5c017bef06501bf742ed8fad  cuda/scripts/benchmark.py
+54327558acdbb34bb39e3d02e7284c4c6c5d3e0d061e4846fc232dd4071aa6b3  cuda/scripts/summarize.py
+ba7927991366d0e25c616cb61a437b8a6c57ebfec2d3902ee46114310da38f19  mpi/src/philox.hpp
+f03a9ea4fa68cf74d296fe863bb45fd578a9dd1a8118db36709cccd17e83b58e  mpi/src/mpi_filter.cpp
+4f8bda23d5f52a7bbc1d1b67ec48df532f16b1049fca2bc5fe58a0b16ac2320d  mpi/src/mpi_filter.hpp
+12345df8ad204b14971af362deaac3fc4e48ed84b9b3a9194e0a01f7c3e5f33e  serial/src/particle_filter.cpp
+ba50856029f96a5d88325b5c7ae3a7c4a12a54d9621f88abafb4d84f235f1845  serial/src/particle_filter.hpp

@@ -1,0 +1,2 @@
+ranks,nodes,job_id,hosts,queue
+64,4,1544614.stdct-mgmt-02,cn-063+cn-046+cn-040+cn-038,auto

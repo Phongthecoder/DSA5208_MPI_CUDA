@@ -1,0 +1,1 @@
+--host gn-a40-102.stdct.loc:1 --map-by slot --bind-to none --mca pml ucx --mca coll_hcoll_enable 0

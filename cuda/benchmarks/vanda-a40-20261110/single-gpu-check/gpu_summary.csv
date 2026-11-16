@@ -1,0 +1,3 @@
+suite,gpus,transport,particles,steps,data_seed,filter_seed,resampling,nodes,gpu,repeats,filter_ms,workflow_ms,propagate_weight_ms,normalize_estimate_ms,resample_ms,reduction_mpi_ms,resample_mpi_ms,staging_ms,filter_min_ms,filter_max_ms,position_rmse_m,resampled_steps,strong_speedup,efficiency
+strong,1,staged,4194304,256,42,1729,0.5,1,NVIDIA A40,5,1408.080596,1412.577401,1018.717167,285.699789,99.213601,0.7099890000011,0.0,0.0,1407.272232,1408.168986,10.11933990325,76,1.0,1.0
+weak,1,staged,1048576,256,42,1729,0.5,1,NVIDIA A40,5,362.297081,364.322178,258.472535,76.517087,25.4586,0.672578,0.0,0.0,362.022317,363.397822,10.12842634317,75,,1.0

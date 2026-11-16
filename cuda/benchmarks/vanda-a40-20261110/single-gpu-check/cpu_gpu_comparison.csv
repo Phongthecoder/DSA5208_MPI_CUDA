@@ -1,0 +1,3 @@
+cpu_ranks,cpu_model,gpus,gpu_model,transport,particles,steps,cpu_filter_ms,gpu_filter_ms,cpu_over_gpu_time_ratio,cpu_position_rmse_m,gpu_position_rmse_m
+1,Intel Xeon Gold 6438N,1,NVIDIA A40,staged,4194304,256,210967.861064,1408.080596,149.82655230340237,10.112756464698,10.11933990325
+128,Intel Xeon Gold 6438N,1,NVIDIA A40,staged,4194304,256,1721.980717,1408.080596,1.2229276661376562,10.119339903253,10.11933990325
