@@ -1,0 +1,19 @@
+job_id	1541447.stdct-mgmt-02
+job_state	F
+Exit_status	0
+queue	gpu
+project	personal-e1554221
+stime	Wed Nov 11 17:23:56 2026
+mtime	Wed Nov 11 17:25:19 2026
+exec_vnode	(GN-A40-102[1]:ncpus=2:ngpus=1:mem=8gb)
+comment	Job run at Wed Nov 11 at 17:23 on (GN-A40-102[1]:ncpus=2:ngpus=1:mem=8gb) and finished
+requested_ncpus	2
+requested_mpiprocs	1
+requested_nodect	1
+requested_select	1:ncpus=2:mpiprocs=1:ompthreads=1:ngpus=1:gpu_model=A40:mem=8gb
+requested_place	free
+requested_walltime	00:20:00
+requested_ngpus	1
+used_walltime	00:01:21
+used_mem	57824kb
+used_cput	00:00:44

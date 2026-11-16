@@ -1,0 +1,21 @@
+{
+  "particles": [
+    1024,
+    4096,
+    16384,
+    65536,
+    262144,
+    1048576,
+    4194304
+  ],
+  "steps": 256,
+  "repeats": 5,
+  "warmup_steps": 8,
+  "data_seed": 42,
+  "filter_seed": 1729,
+  "resampling": "ESS < 0.5*N; systematic",
+  "gpu": "NVIDIA A40",
+  "mpi_ranks": 1,
+  "transport": "staged",
+  "timing": "filter_ms includes allocation, initialization, and 256 filter steps; launch_wall_ms also includes process startup"
+}
