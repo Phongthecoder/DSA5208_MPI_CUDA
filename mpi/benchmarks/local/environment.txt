@@ -1,0 +1,15 @@
+Mon Nov  9 13:30:42 +08 2026
+Darwin 25.5.0 Darwin Kernel Version 25.5.0: Mon Apr 27 20:39:29 PDT 2026; root:xnu-12377.121.6~2/RELEASE_ARM64_T8142 arm64
+Mac17,2
+Apple M5
+10
+34359738368
+Apple clang version 17.0.0 (clang-1700.6.3.2)
+Target: arm64-apple-darwin25.5.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+HYDRA build details:
+    Version:                                 4.3.2
+    Release Date:                            Mon Oct  6 11:14:20 AM CDT 2025
+FI_TCP_IFACE=lo0
+HYDRA_IFACE=lo0

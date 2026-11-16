@@ -1,0 +1,9 @@
+ranks	nodes	job_id	queue	cpu_model	hosts	core_binding	make_check	filter_runs	resampling_runs
+1	1	1535968.stdct-mgmt-02	cpu_serial	Intel(R) Xeon(R) Gold 6438N	in-007	PBS allocated 1 CPU; Open MPI gave no individual core ID	PASS	10	0
+2	1	1535969.stdct-mgmt-02	cpu_parallel	Intel(R) Xeon(R) Gold 6438N	in-008	PASS	PASS	15	20
+4	1	1535971.stdct-mgmt-02	cpu_parallel	Intel(R) Xeon(R) Gold 6438N	in-009	PASS	PASS	15	20
+8	1	1535973.stdct-mgmt-02	cpu_parallel	Intel(R) Xeon(R) Gold 6438N	in-020	PASS	PASS	15	20
+16	1	1535974.stdct-mgmt-02	cpu_parallel	Intel(R) Xeon(R) Gold 6438N	in-001	PASS	PASS	15	20
+32	1	1535977.stdct-mgmt-02	cpu_parallel	Intel(R) Xeon(R) Gold 6438N	in-010	PASS	PASS	35	20
+64	4	1535972.stdct-mgmt-02	cpu_parallel	Intel(R) Xeon(R) Gold 6438N	in-010+in-012+in-014+in-019	PASS	PASS	15	20
+128	8	1535970.stdct-mgmt-02	cpu_parallel	Intel(R) Xeon(R) Gold 6438N	in-001+in-010+in-011+in-012+in-014+in-016+in-019+in-020	PASS	PASS	15	20

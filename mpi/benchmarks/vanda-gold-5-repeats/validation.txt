@@ -1,0 +1,55 @@
+MPI ranks 1 | PBS job 1535968.stdct-mgmt-02
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=2.521680 m, velocity RMSE=0.389389 m/s, standardized covariance RMSE=0.196151, log-likelihood error/step=0.024105
+Kalman comparison N=65536 position RMSE=0.296522 m, velocity RMSE=0.048683 m/s, standardized covariance RMSE=0.031476, log-likelihood error/step=0.001637
+Range-bearing position RMSE over six tracks: MPI=7.873052 m, serial=7.754915 m, observations=22.111531 m
+All MPI checks passed on 1 ranks.
+
+MPI ranks 2 | PBS job 1535969.stdct-mgmt-02
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=2.521680 m, velocity RMSE=0.389389 m/s, standardized covariance RMSE=0.196151, log-likelihood error/step=0.024105
+Kalman comparison N=65536 position RMSE=0.296522 m, velocity RMSE=0.048683 m/s, standardized covariance RMSE=0.031476, log-likelihood error/step=0.001637
+Range-bearing position RMSE over six tracks: MPI=7.873052 m, serial=7.754915 m, observations=22.111531 m
+All MPI checks passed on 2 ranks.
+
+MPI ranks 4 | PBS job 1535971.stdct-mgmt-02
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=2.521680 m, velocity RMSE=0.389389 m/s, standardized covariance RMSE=0.196151, log-likelihood error/step=0.024105
+Kalman comparison N=65536 position RMSE=0.296522 m, velocity RMSE=0.048683 m/s, standardized covariance RMSE=0.031476, log-likelihood error/step=0.001637
+Range-bearing position RMSE over six tracks: MPI=7.873052 m, serial=7.754915 m, observations=22.111531 m
+All MPI checks passed on 4 ranks.
+
+MPI ranks 8 | PBS job 1535973.stdct-mgmt-02
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=2.521680 m, velocity RMSE=0.389389 m/s, standardized covariance RMSE=0.196151, log-likelihood error/step=0.024105
+Kalman comparison N=65536 position RMSE=0.296522 m, velocity RMSE=0.048683 m/s, standardized covariance RMSE=0.031476, log-likelihood error/step=0.001637
+Range-bearing position RMSE over six tracks: MPI=7.873052 m, serial=7.754915 m, observations=22.111531 m
+All MPI checks passed on 8 ranks.
+
+MPI ranks 16 | PBS job 1535974.stdct-mgmt-02
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=2.521680 m, velocity RMSE=0.389389 m/s, standardized covariance RMSE=0.196151, log-likelihood error/step=0.024105
+Kalman comparison N=65536 position RMSE=0.296522 m, velocity RMSE=0.048683 m/s, standardized covariance RMSE=0.031476, log-likelihood error/step=0.001637
+Range-bearing position RMSE over six tracks: MPI=7.873052 m, serial=7.754915 m, observations=22.111531 m
+All MPI checks passed on 16 ranks.
+
+MPI ranks 32 | PBS job 1535977.stdct-mgmt-02
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=2.521680 m, velocity RMSE=0.389389 m/s, standardized covariance RMSE=0.196151, log-likelihood error/step=0.024105
+Kalman comparison N=65536 position RMSE=0.296522 m, velocity RMSE=0.048683 m/s, standardized covariance RMSE=0.031476, log-likelihood error/step=0.001637
+Range-bearing position RMSE over six tracks: MPI=7.873052 m, serial=7.754915 m, observations=22.111531 m
+All MPI checks passed on 32 ranks.
+
+MPI ranks 64 | PBS job 1535972.stdct-mgmt-02
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=2.521680 m, velocity RMSE=0.389389 m/s, standardized covariance RMSE=0.196151, log-likelihood error/step=0.024105
+Kalman comparison N=65536 position RMSE=0.296522 m, velocity RMSE=0.048683 m/s, standardized covariance RMSE=0.031476, log-likelihood error/step=0.001637
+Range-bearing position RMSE over six tracks: MPI=7.873052 m, serial=7.754915 m, observations=22.111531 m
+All MPI checks passed on 64 ranks.
+
+MPI ranks 128 | PBS job 1535970.stdct-mgmt-02
+PASS Philox, exact systematic ancestry and payload, rank-count consistency and invariants
+Kalman comparison N=512 position RMSE=2.521680 m, velocity RMSE=0.389389 m/s, standardized covariance RMSE=0.196151, log-likelihood error/step=0.024105
+Kalman comparison N=65536 position RMSE=0.296522 m, velocity RMSE=0.048683 m/s, standardized covariance RMSE=0.031476, log-likelihood error/step=0.001637
+Range-bearing position RMSE over six tracks: MPI=7.873052 m, serial=7.754915 m, observations=22.111531 m
+All MPI checks passed on 128 ranks.

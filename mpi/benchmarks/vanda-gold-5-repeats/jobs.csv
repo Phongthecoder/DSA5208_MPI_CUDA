@@ -1,0 +1,9 @@
+ranks,nodes,job_id,hosts
+1,1,1535968.stdct-mgmt-02,in-007
+2,1,1535969.stdct-mgmt-02,in-008
+128,8,1535970.stdct-mgmt-02,in-010+in-012+in-014+in-019+in-020+in-001+in-011+in-016
+4,1,1535971.stdct-mgmt-02,in-009
+64,4,1535972.stdct-mgmt-02,in-010+in-012+in-014+in-019
+8,1,1535973.stdct-mgmt-02,in-020
+16,1,1535974.stdct-mgmt-02,in-001
+32,1,1535977.stdct-mgmt-02,in-010

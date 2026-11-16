@@ -1,0 +1,27 @@
+ranks	job_id	host	cpu_model
+1	1542990.stdct-mgmt-02	cn-151	Intel(R) Xeon(R) Platinum 8452Y
+2	1542991.stdct-mgmt-02	cn-006	Intel(R) Xeon(R) Platinum 8452Y
+4	1542992.stdct-mgmt-02	cn-152	Intel(R) Xeon(R) Platinum 8452Y
+8	1542993.stdct-mgmt-02	cn-140	Intel(R) Xeon(R) Platinum 8452Y
+16	1542994.stdct-mgmt-02	cn-122	Intel(R) Xeon(R) Platinum 8452Y
+32	1542995.stdct-mgmt-02	cn-121	Intel(R) Xeon(R) Platinum 8452Y
+64	1544614.stdct-mgmt-02	cn-038	Intel(R) Xeon(R) Platinum 8452Y
+64	1544614.stdct-mgmt-02	cn-040	Intel(R) Xeon(R) Platinum 8452Y
+64	1544614.stdct-mgmt-02	cn-046	Intel(R) Xeon(R) Platinum 8452Y
+64	1544614.stdct-mgmt-02	cn-063	Intel(R) Xeon(R) Platinum 8452Y
+128	1542997.stdct-mgmt-02	cn-005	Intel(R) Xeon(R) Platinum 8452Y
+128	1542997.stdct-mgmt-02	cn-100	Intel(R) Xeon(R) Platinum 8452Y
+128	1542997.stdct-mgmt-02	cn-118	Intel(R) Xeon(R) Platinum 8452Y
+128	1542997.stdct-mgmt-02	cn-119	Intel(R) Xeon(R) Platinum 8452Y
+128	1542997.stdct-mgmt-02	cn-120	Intel(R) Xeon(R) Platinum 8452Y
+128	1542997.stdct-mgmt-02	cn-129	Intel(R) Xeon(R) Platinum 8452Y
+128	1542997.stdct-mgmt-02	cn-142	Intel(R) Xeon(R) Platinum 8452Y
+128	1542997.stdct-mgmt-02	cn-146	Intel(R) Xeon(R) Platinum 8452Y
+256	1542998.stdct-mgmt-02	cn-005	Intel(R) Xeon(R) Platinum 8452Y
+256	1542998.stdct-mgmt-02	cn-100	Intel(R) Xeon(R) Platinum 8452Y
+256	1542998.stdct-mgmt-02	cn-118	Intel(R) Xeon(R) Platinum 8452Y
+256	1542998.stdct-mgmt-02	cn-119	Intel(R) Xeon(R) Platinum 8452Y
+256	1542998.stdct-mgmt-02	cn-120	Intel(R) Xeon(R) Platinum 8452Y
+256	1542998.stdct-mgmt-02	cn-129	Intel(R) Xeon(R) Platinum 8452Y
+256	1542998.stdct-mgmt-02	cn-142	Intel(R) Xeon(R) Platinum 8452Y
+256	1542998.stdct-mgmt-02	cn-146	Intel(R) Xeon(R) Platinum 8452Y

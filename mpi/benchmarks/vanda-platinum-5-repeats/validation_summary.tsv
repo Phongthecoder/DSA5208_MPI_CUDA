@@ -1,0 +1,10 @@
+ranks	nodes	job_id	queue	cpu_model	hosts	validation	filter_runs	resampling_runs
+1	1	1542990.stdct-mgmt-02	batch_cpu	Intel(R) Xeon(R) Platinum 8452Y	cn-151	PASS	10	0
+2	1	1542991.stdct-mgmt-02	batch_cpu	Intel(R) Xeon(R) Platinum 8452Y	cn-006	PASS	15	20
+4	1	1542992.stdct-mgmt-02	batch_cpu	Intel(R) Xeon(R) Platinum 8452Y	cn-152	PASS	15	20
+8	1	1542993.stdct-mgmt-02	batch_cpu	Intel(R) Xeon(R) Platinum 8452Y	cn-140	PASS	15	20
+16	1	1542994.stdct-mgmt-02	batch_cpu	Intel(R) Xeon(R) Platinum 8452Y	cn-122	PASS	15	20
+32	1	1542995.stdct-mgmt-02	batch_cpu	Intel(R) Xeon(R) Platinum 8452Y	cn-121	PASS	35	20
+64	4	1544614.stdct-mgmt-02	batch_cpu	Intel(R) Xeon(R) Platinum 8452Y	cn-063+cn-046+cn-040+cn-038	PASS	15	20
+128	8	1542997.stdct-mgmt-02	batch_cpu	Intel(R) Xeon(R) Platinum 8452Y	cn-146+cn-142+cn-129+cn-120+cn-119+cn-118+cn-100+cn-005	PASS	15	20
+256	8	1542998.stdct-mgmt-02	batch_cpu	Intel(R) Xeon(R) Platinum 8452Y	cn-146+cn-142+cn-129+cn-120+cn-119+cn-118+cn-100+cn-005	PASS	15	20

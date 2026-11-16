@@ -1,0 +1,2 @@
+ranks	nodes	queue	select
+64	4	auto	1:ncpus=16:mpiprocs=16:ompthreads=1:mem=32gb:host=cn-063+1:ncpus=16:mpiprocs=16:ompthreads=1:mem=32gb:host=cn-046+1:ncpus=16:mpiprocs=16:ompthreads=1:mem=32gb:host=cn-040+1:ncpus=16:mpiprocs=16:ompthreads=1:mem=32gb:host=cn-038
