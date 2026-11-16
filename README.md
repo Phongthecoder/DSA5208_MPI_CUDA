@@ -19,6 +19,29 @@ parallel design. The CPU MPI and CUDA versions reuse the serial model code and
 draw each particle's random numbers from a counter-based Philox generator keyed
 on its global index, so their results do not depend on the number of ranks.
 
+## Simulated data
+
+All experiments use synthetic data from one function, `simulate()` in
+[`serial/src/particle_filter.cpp`](serial/src/particle_filter.cpp). It draws a
+true trajectory from the constant-velocity model and the noisy measurements of
+it, from a data seed (42 in all timings). Each program regenerates the data
+when it starts; nothing is read from a file. Because the simulation is
+deterministic and all versions compile the same code, they all filter
+identical observations.
+
+| Version | How it gets the data |
+|---|---|
+| Serial | `serial/src/serial.cpp` calls `simulate()` directly. |
+| CPU MPI | `simulate_on_root()` in `mpi/src/mpi_filter.cpp`: rank 0 calls `simulate()`, then `MPI_Bcast` sends the observations to every rank. |
+| MPI + CUDA | `cuda/src/main.cpp` uses the same `simulate_on_root()`. |
+| Tests | `make check` simulates six sequences (seeds 11, 29, 47, 65, 83, 101) for the Kalman and serial comparisons. |
+
+Set the data with `--steps T` and `--data-seed SEED` on any of the three
+programs, and with `--model linear|range-bearing` on the serial and MPI
+programs; the CUDA program always uses range-bearing data. The
+[data simulation notes](data_simulation.md) describe each step, the
+parameters and the random-number streams.
+
 ## Repository layout
 
 ```
@@ -30,6 +53,7 @@ cuda/     MPI + CUDA filter, validation, Vanda PBS scripts, results
   */scripts/      benchmark drivers, PBS job scripts, summaries and plots
   */benchmarks/   archived measurements used in the report
 tracking_problem.md   model specification
+data_simulation.md    how the synthetic data is generated
 sequential_mc.md      algorithm and parallel design
 environment.yml       conda environment for a workstation
 ```
