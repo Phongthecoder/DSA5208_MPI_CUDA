@@ -1,0 +1,55 @@
+% Algorithm 1 of the report: the CPU MPI particle filter on one rank.
+% Build: pdflatex algorithm_mpi.tex && pdfcrop algorithm_mpi.pdf
+%        && pdftoppm -png -r 250 -singlefile algorithm_mpi-crop.pdf algorithm_mpi
+\documentclass[10pt]{article}
+\usepackage[paperwidth=7.2in,paperheight=11in,margin=0.2in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm,float}
+\usepackage[noend]{algpseudocode}
+\pagestyle{empty}
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}
+\algrenewcommand\algorithmiccomment[1]{\hfill{\small$\triangleright$ #1}}
+\newcommand{\mpi}[1]{\texttt{\small #1}}
+\newcommand{\Phil}{\operatorname{Philox}}
+\begin{document}
+\begin{algorithm}[H]
+\caption{Bootstrap particle filter with MPI, executed by rank $r$ of $p$}
+\begin{algorithmic}[1]
+\Require $N$ particles, $T$ steps, ESS threshold $\tau = 0.5$; rank $r$ owns slots $[o_r, o_{r+1})$, i.e.\ $\lfloor N/p \rfloor$ or $\lceil N/p \rceil$ particles
+\If{$r = 0$} simulate $y_{1:T}$ \EndIf
+\State \mpi{MPI\_Bcast}$(y_{1:T})$ from rank 0 \Comment{$2T$ doubles, once}
+\For{each local particle $i$} \Comment{no communication}
+  \State $x_i \gets \mu_0 + \sigma_0 \odot z_i$, \ $z_i = \Phil(\text{seed}, o_r + i, 0)$; \quad $\ell_i \gets -\log N$
+\EndFor
+\For{$t = 1, \dots, T$}
+  \For{each local particle $i$} \Comment{propagate and weight, no communication}
+    \State $x_i \gets F x_i + w_i$, \ $w_i \sim \mathcal{N}(0, Q)$ from $\Phil(\text{seed}, o_r + i, t)$
+    \State $\ell_i \gets \ell_i + \log g(y_t \mid x_i)$
+  \EndFor
+  \State $m \gets$ \mpi{MPI\_Allreduce}$(\max_i \ell_i,\ \text{MAX})$ \Comment{1 double}
+  \State $\tilde w_i \gets \exp(\ell_i - m)$ for each local $i$
+  \State $(S_1, S_2, \mathbf{M}) \gets$ \mpi{MPI\_Allreduce}$\big(\textstyle\sum_i \tilde w_i,\ \sum_i \tilde w_i^2,\ \sum_i \tilde w_i x_i,\ \text{SUM}\big)$ \Comment{6 doubles}
+  \State $\hat x_t \gets \mathbf{M} / S_1$; \ $\text{ESS} \gets S_1^2 / S_2$; \ $\log \hat p(y_t \mid y_{1:t-1}) \gets m + \log S_1$ \Comment{same on every rank}
+  \If{$\text{ESS} < \tau N$} \Comment{resample}
+    \State $u \gets \Phil(\text{seed}', t) \in [0, 1)$ \Comment{same on every rank, no communication}
+    \If{distributed}
+      \State $(s_0, \dots, s_{p-1}) \gets$ \mpi{MPI\_Allgather}$(\sum_i \tilde w_i)$; \ $W_q \gets \sum_{q' < q} s_{q'}$ \Comment{$p$ doubles}
+      \State output slots $k$ with $S_1 (k + u)/N \in [W_r, W_{r+1})$ form one range $[a_r, b_r)$ \Comment{binary search}
+      \State for $k = a_r, \dots, b_r - 1$: $\text{buf}_k \gets x_j$, the first $j$ with $W_r + \sum_{i \le j} \tilde w_i > S_1 (k+u)/N$
+      \State $c_{q} \gets \big|[a_r, b_r) \cap [o_q, o_{q+1})\big|$ for $q = 0, \dots, p-1$
+      \State \mpi{MPI\_Alltoall}$(c)$ \Comment{$p$ integers}
+      \State $x \gets$ \mpi{MPI\_Alltoallv}$(\text{buf}, c)$ \Comment{4 doubles per particle that changes rank}
+    \Else \Comment{centralized}
+      \State \mpi{MPI\_Gatherv}$(x, \tilde w)$ to rank 0 \Comment{all $N$ particles}
+      \State rank 0 selects $N$ ancestors with serial systematic resampling
+      \State $x \gets$ \mpi{MPI\_Scatterv}$(\text{ancestors})$ from rank 0 \Comment{all $N$ particles}
+    \EndIf
+    \State $\ell_i \gets -\log N$ for each local $i$
+  \Else
+    \State $\ell_i \gets \ell_i - m - \log S_1$ for each local $i$ \Comment{normalize}
+  \EndIf
+\EndFor
+\State \Return $\hat x_{1:T}$ and $\sum_t \log \hat p(y_t \mid y_{1:t-1})$
+\end{algorithmic}
+\end{algorithm}
+\end{document}
