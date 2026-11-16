@@ -33,7 +33,7 @@ The parameters are fixed constants in
 
 1. **Initial state ($t = 0$).** Draw the true starting state from the prior,
    independently in each component:
-   $$x_0 \sim \mathcal{N}\big(\mu_0, \operatorname{diag}(\sigma_0^2)\big), \quad
+   $$x_0 \sim \mathcal{N}\big(\mu_0, \mathrm{diag}(\sigma_0^2)\big), \quad
    \mu_0 = (-250, -60, 2, 3), \quad \sigma_0 = (20, 20, 1.5, 1.5).$$
    The object therefore starts about 260 m from the radar and moves at about
    3.6 m/s.
@@ -52,8 +52,8 @@ The parameters are fixed constants in
    Gaussian noise:
    - linear: $y_t = (p^x_t, p^y_t) + v_t$, with $v_t \sim \mathcal{N}(0, 10^2 I_2)$ (m);
    - range-bearing, from a radar at the origin:
-     $y_t = \big(\sqrt{(p^x_t)^2 + (p^y_t)^2},\ \operatorname{atan2}(p^y_t, p^x_t)\big) + v_t$,
-     with $v_t \sim \mathcal{N}\big(0, \operatorname{diag}(8^2, 0.04^2)\big)$
+     $y_t = \big(\sqrt{(p^x_t)^2 + (p^y_t)^2},\ \mathrm{atan2}(p^y_t, p^x_t)\big) + v_t$,
+     with $v_t \sim \mathcal{N}\big(0, \mathrm{diag}(8^2, 0.04^2)\big)$
      (m, rad). The noisy bearing is wrapped to $(-\pi, \pi]$.
 
 4. Store $x_t$ and $y_t$, and repeat steps 2 and 3 until $t = T$.

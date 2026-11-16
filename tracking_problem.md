@@ -60,10 +60,10 @@ $$
 y_t =
 \begin{pmatrix}
 \sqrt{(p^x_t - s^x)^2 + (p^y_t - s^y)^2}\\[2pt]
-\operatorname{atan2}(p^y_t - s^y,\; p^x_t - s^x)
+\mathrm{atan2}(p^y_t - s^y,\; p^x_t - s^x)
 \end{pmatrix}
 + v_t, \qquad
-v_t \sim \mathcal{N}\!\left(0, \operatorname{diag}(\sigma_r^2, \sigma_\theta^2)\right)
+v_t \sim \mathcal{N}\!\left(0, \mathrm{diag}(\sigma_r^2, \sigma_\theta^2)\right)
 $$
 
 The Kalman filter is no longer exact here. This is the case that motivates the particle filter. Bearing residuals are wrapped to $(-\pi, \pi]$.
